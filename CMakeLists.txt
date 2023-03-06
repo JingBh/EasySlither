@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(Assignment CXX)
+project(EasySlither)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -8,4 +8,11 @@ link_directories(${CMAKE_SOURCE_DIR}/lib)
 
 link_libraries(EasyXa EasyXw XInput)
 
-add_executable(Assignment main.cpp exercise/1.cpp exercise/2.cpp exercise/3.cpp exercise/4.cpp src/utils.cpp application.manifest src/shapes.cpp src/shapes.h)
+add_executable(EasySlither
+        src/main.cpp
+        src/Menu.cppm
+        src/Screen.cppm
+        src/World.cppm
+        src/Utils/Drawable.cppm
+        src/Utils/Frames.cppm
+        extra/application.manifest)
