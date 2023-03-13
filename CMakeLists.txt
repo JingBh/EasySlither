@@ -3,6 +3,13 @@ project(EasySlither)
 
 set(CMAKE_CXX_STANDARD 20)
 
+add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+    add_definitions(-DDEBUG=1)
+endif ()
+
 include_directories(${CMAKE_SOURCE_DIR}/include)
 link_directories(${CMAKE_SOURCE_DIR}/lib)
 
@@ -10,9 +17,19 @@ link_libraries(EasyXa EasyXw XInput)
 
 add_executable(EasySlither
         src/main.cpp
-        src/Menu.cppm
-        src/Screen.cppm
-        src/World.cppm
+        src/Game/Interface.cppm
+        src/Game/World.cppm
+        src/Menu/Menu.cppm
+        src/Menu/MenuItem.cppm
+        src/Middleware/ScreenMediator.cppm
+        src/Middleware/UserInput.cppm
+        src/Screen/Interface.cppm
+        src/Screen/MainScreen.cppm
+        src/Screen/Screen.cppm
+        src/ThirdParty.cppm
         src/Utils/Drawable.cppm
         src/Utils/Frames.cppm
+        src/Utils/Mediator.cppm
+        src/Utils/Observer.cppm
+        src/Utils/TextEncode.cppm
         extra/application.manifest)
