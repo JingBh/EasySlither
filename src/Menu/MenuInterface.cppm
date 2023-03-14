@@ -1,3 +1,7 @@
+/**
+ * Interface of the Menu module.
+ */
+
 export module Menu;
 
 import <memory>;
