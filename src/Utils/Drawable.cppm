@@ -23,6 +23,7 @@ public:
     [[nodiscard]] virtual std::unique_ptr <easyx::Image> renderImage() const = 0;
 
     void renderAt(windows::Point point, // not ref, because value might be modified
+                  easyx::Image *parentImage = nullptr,
                   const RenderAnchor anchor = TOP_LEFT) {
         const auto image = renderImage();
 
@@ -38,6 +39,7 @@ public:
                 break;
         }
 
+        easyx::setWorkingImage(parentImage);
         easyx::putImage(point, image.get());
 
         delete renderRect;

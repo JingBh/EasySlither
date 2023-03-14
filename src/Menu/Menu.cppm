@@ -1,65 +1,111 @@
-export module Menu;
+export module Menu.Menu;
 
 import <memory>;
-import <vector>;
 
-import Menu.MenuItem;
+import Menu;
 import Middleware.UserInput;
-import Screen;
+import Screen.ScreenName;
 import ThirdParty;
-import Utils.Drawable;
+import Utils.Colors;
 import Utils.Mediator;
+import Utils.TextEncode;
+import Utils.Throttle;
 
-export class Menu
-    : public Drawable, public ObservesInputDirection, public ObservesMouseMove {
-protected:
-    std::vector <MenuItem> items;
-    std::size_t activeItem = -1;
+std::unique_ptr <easyx::Image> Menu::renderImage() const {
+    auto image = std::make_unique<easyx::Image>(
+        itemWidth,
+        (itemHeight + itemGap) * static_cast<int>(items.size()) - itemGap);
 
-    int itemWidth = 96;
-    int itemHeight = 32;
-    int itemGap = 16;
+    easyx::setWorkingImage(image.get());
+    easyx::setBackgroundColor(GRAY_900);
+    easyx::clearDevice();
+    easyx::setFont(24, true);
 
-    void addItem(MenuItem &item) {
-        items.push_back(item);
-    }
+    for (std::size_t i = 0; i < items.size(); i++) {
+        const auto item = items[i];
 
-    void emplaceItem(IMediator <ScreenName> *mediator, const ScreenName event, const std::string text) {
-        items.emplace_back(mediator, event, text);
-    }
-
-public:
-    [[nodiscard]] std::unique_ptr <easyx::Image> renderImage() const override {
-        auto image = std::make_unique<easyx::Image>(
-            itemWidth, itemHeight * static_cast<int>(items.size()) +
-                       itemGap * static_cast<int>(items.size() - 1));
-
-        for (std::size_t i = 0; i < items.size(); i++) {
-            const auto item = items[i];
-
-
+        if (activeItem == i) {
+            easyx::setFillColor(GREEN_700);
+        } else {
+            easyx::setFillColor(GREEN_600);
         }
 
-        return image;
+        windows::Rect location{
+            0,
+            static_cast<int>((itemHeight + itemGap) * i),
+            itemWidth,
+            static_cast<int>(itemHeight * (i + 1) + itemGap * i)
+        };
+        easyx::drawRoundRect(location, itemHeight / 2, false);
+
+        if (activeItem == i) {
+            easyx::setBackgroundColor(GREEN_700);
+        } else {
+            easyx::setBackgroundColor(GREEN_600);
+        }
+
+        easyx::drawText(encode(item.text), &location,
+                        easyx::TEXT_CENTER | easyx::TEXT_VCENTER | easyx::TEXT_SINGLELINE);
+
+        easyx::setBackgroundColor(GRAY_900);
     }
 
-    void onInputDirection(const int degree) override {
-        if (degree == 0) {
+    easyx::setWorkingImage();
+
+    return image;
+}
+
+void Menu::addItem(MenuItem &item) {
+    items.push_back(item);
+}
+
+void Menu::emplaceItem(IMediator <ScreenName> *mediator, const ScreenName event, const std::string text) {
+    items.emplace_back(mediator, event, text);
+}
+
+void Menu::onKeyPress(const KeyType key) {
+    switch (key) {
+        case KeyType::UP:
             if (activeItem > 0) {
                 activeItem--;
             } else {
                 activeItem = items.size() - 1;
             }
-        } else if (degree == 180) {
+            break;
+        case KeyType::DOWN:
+        case KeyType::SWITCH:
             if (activeItem < items.size() - 1) {
                 activeItem++;
             } else {
                 activeItem = 0;
             }
+            break;
+        case KeyType::CONFIRM:
+            if (activeItem >= 0 && activeItem < items.size()) {
+                items[activeItem].action();
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+void Menu::onMouseMove(const windows::Point &point) {
+    if (this->renderRect == nullptr) {
+        return;
+    }
+
+    for (std::size_t i = 0; i < items.size(); i++) {
+        windows::Rect itemRenderRect{*this->renderRect};
+
+        itemRenderRect.top += static_cast<int>((itemHeight + itemGap) * i);
+        itemRenderRect.bottom = itemRenderRect.top + static_cast<int>(itemHeight);
+
+        if (windows::isInRect(itemRenderRect, point)) {
+            activeItem = i;
+            return;
         }
     }
 
-    void onMouseMove(const windows::Point &point) override {
-
-    }
-};
+    activeItem = -1;
+}

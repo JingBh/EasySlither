@@ -1,33 +1,27 @@
 export module Utils.Frames;
 
-import <chrono>;
-import <string>;
+import <string_view>;
 import <thread>;
 import <map>;
 
-std::map<std::string, unsigned long> lastFrame;
-std::map<std::string, unsigned long> lastTime;
+import Utils.Time;
 
-const std::string defaultName = "default";
+std::map<std::string_view, unsigned long> lastFrame;
+std::map<std::string_view, unsigned long> lastTime;
 
-unsigned long GetTickCount() {
-    static const auto start_time = std::chrono::steady_clock::now();
-    auto current_time = std::chrono::steady_clock::now();
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
-    return static_cast<unsigned long>(ms);
-}
+const std::string_view defaultName = "default";
 
-export void sleepFor(int fps, const std::string &name = defaultName) {
+export void sleepFor(int fps, std::string_view name = defaultName) {
     if (lastFrame.find(name) == lastFrame.end()) {
         lastFrame[name] = 0;
-        lastTime[name] = GetTickCount();
+        lastTime[name] = getTickCount();
     }
 
     unsigned long currentFrame = lastFrame[name];
     unsigned long currentTime = lastTime[name];
 
     unsigned long frameTime = 1000 / fps;
-    unsigned long time = GetTickCount();
+    unsigned long time = getTickCount();
 
     if (time - currentTime < frameTime) {
         std::this_thread::sleep_for(
@@ -35,5 +29,5 @@ export void sleepFor(int fps, const std::string &name = defaultName) {
     }
 
     lastFrame[name] = currentFrame + 1;
-    lastTime[name] = GetTickCount();
+    lastTime[name] = getTickCount();
 }

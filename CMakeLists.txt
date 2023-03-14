@@ -17,19 +17,25 @@ link_libraries(EasyXa EasyXw XInput)
 
 add_executable(EasySlither
         src/main.cpp
-        src/Game/Interface.cppm
+        src/Game/GameInterface.cppm
         src/Game/World.cppm
         src/Menu/Menu.cppm
+        src/Menu/MenuInterface.cppm
         src/Menu/MenuItem.cppm
         src/Middleware/ScreenMediator.cppm
         src/Middleware/UserInput.cppm
-        src/Screen/Interface.cppm
+        src/Screen/ScreenInterface.cppm
         src/Screen/MainScreen.cppm
+        src/Screen/ScaleFactor.cppm
         src/Screen/Screen.cppm
+        src/Screen/ScreenName.cppm
         src/ThirdParty.cppm
+        src/Utils/Colors.cppm
         src/Utils/Drawable.cppm
         src/Utils/Frames.cppm
         src/Utils/Mediator.cppm
         src/Utils/Observer.cppm
         src/Utils/TextEncode.cppm
+        src/Utils/Throttle.cppm
+        src/Utils/Time.cppm
         extra/application.manifest)

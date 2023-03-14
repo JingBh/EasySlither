@@ -1,6 +1,7 @@
 import Middleware.ScreenMediator;
 import Middleware.UserInput;
 import Screen;
+import Screen.ScreenName;
 import Utils.Frames;
 
 int main() {
@@ -8,7 +9,8 @@ int main() {
 
     // Events (for observers)
     auto subjectInputDirection = SubjectInputDirection::getInstance();
-    auto subjectMouseMove = SubjectMouseMove::getInstance(&screen);
+    auto subjectMouseMove = SubjectMouseMove::getInstance();
+    auto subjectKeyPress = SubjectKeyPress::getInstance();
 
     // Mediators
     auto screenMediator = ScreenMediator::getInstance(&screen);
@@ -16,7 +18,8 @@ int main() {
 
     while (true) {
         subjectInputDirection->update();
-        subjectMouseMove->update();
+        subjectMouseMove->update(screen.getHandle());
+        subjectKeyPress->update();
 
         screen.refresh();
 

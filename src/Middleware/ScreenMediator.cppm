@@ -1,9 +1,11 @@
 export module Middleware.ScreenMediator;
 
-import <string_view>;
+import <iostream>;
 import <mutex>;
+import <string_view>;
 
 import Screen;
+import Screen.ScreenName;
 import Utils.Drawable;
 import Utils.Mediator;
 
@@ -26,12 +28,21 @@ public:
     void notify(const ScreenName &screenName) final {
         switch (screenName) {
             case MAIN:
+#ifdef DEBUG
+                std::cout << "Screen switched: Main\n";
+#endif //DEBUG
                 this->useScreen(new MainScreen(screen));
                 break;
             case SINGLE_PLAYER:
+#ifdef DEBUG
+                std::cout << "Screen switched: Single player\n";
+#endif //DEBUG
                 // TODO
                 break;
             case MULTI_PLAYER:
+#ifdef DEBUG
+                std::cout << "Screen switched: Multi player\n";
+#endif //DEBUG
                 // TODO
                 break;
         }

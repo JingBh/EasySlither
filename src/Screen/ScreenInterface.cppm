@@ -7,14 +7,10 @@ export module Screen;
 import <list>;
 import <memory>;
 
+import Menu;
+import Screen.ScreenName;
 import ThirdParty;
 import Utils.Drawable;
-
-export enum class ScreenName {
-    MAIN,
-    SINGLE_PLAYER,
-    MULTI_PLAYER
-};
 
 export class Screen {
 private:
@@ -43,18 +39,16 @@ public:
 };
 
 export class MainScreen : public LocationAwareDrawable {
+private:
+    std::unique_ptr <Menu> menu;
+
 protected:
     const Screen &screen;
 
 public:
-    explicit MainScreen(const Screen &screen)
-        : screen{screen} {};
+    explicit MainScreen(Screen &screen);
 
     [[nodiscard]] std::unique_ptr <easyx::Image> renderImage() const final;
-
-    void renderTitle(easyx::Image *image) const;
-
-    void renderSign(easyx::Image *image) const;
 
     void render() final;
 };

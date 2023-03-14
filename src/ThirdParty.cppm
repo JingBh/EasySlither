@@ -22,15 +22,19 @@ export namespace windows {
      */
 
     constexpr auto XINPUT_SUCCESS = ERROR_SUCCESS;
-
     constexpr auto XINPUT_LEFT_THUMB_DEADZONE = XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
     constexpr auto XINPUT_RIGHT_THUMB_DEADZONE = XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
-
+    constexpr auto XINPUT_A = XINPUT_GAMEPAD_A;
+    constexpr auto XINPUT_B = XINPUT_GAMEPAD_B;
     constexpr auto XINPUT_DPAD_UP = XINPUT_GAMEPAD_DPAD_UP;
     constexpr auto XINPUT_DPAD_DOWN = XINPUT_GAMEPAD_DPAD_DOWN;
     constexpr auto XINPUT_DPAD_LEFT = XINPUT_GAMEPAD_DPAD_LEFT;
     constexpr auto XINPUT_DPAD_RIGHT = XINPUT_GAMEPAD_DPAD_RIGHT;
 
+    constexpr auto VKEY_TAB = VK_TAB;
+    constexpr auto VKEY_ESCAPE = VK_ESCAPE;
+    constexpr auto VKEY_SPACE = VK_SPACE;
+    constexpr auto VKEY_ENTER = VK_RETURN;
     constexpr auto VKEY_UP = VK_UP;
     constexpr auto VKEY_DOWN = VK_DOWN;
     constexpr auto VKEY_LEFT = VK_LEFT;
@@ -83,8 +87,12 @@ export namespace windows {
         return screenRect;
     }
 
+    bool isInRect(const RECT &rect, const POINT &point) {
+        return PtInRect(&rect, point);
+    }
+
     bool isKeyDown(const int vKey) {
-        return static_cast<bool>(GetAsyncKeyState(vKey) & 0x8000);
+        return static_cast<bool>(GetKeyState(vKey) & 0x8000);
     }
 
     auto XinputGetState(XinputState *state) {
@@ -93,37 +101,56 @@ export namespace windows {
 }
 
 export namespace easyx {
-    constexpr int WINDOW_SHOWCONSOLE = EX_SHOWCONSOLE;
-    constexpr int WINDOW_NOCLOSE = EX_NOCLOSE;
-    constexpr int WINDOW_NOMINIMIZE = EX_NOMINIMIZE;
-    constexpr int WINDOW_DBLCLKS = EX_DBLCLKS;
+    constexpr auto WINDOW_SHOWCONSOLE = EX_SHOWCONSOLE;
+    constexpr auto WINDOW_NOCLOSE = EX_NOCLOSE;
+    constexpr auto WINDOW_NOMINIMIZE = EX_NOMINIMIZE;
+    constexpr auto WINDOW_DBLCLKS = EX_DBLCLKS;
 
-    constexpr unsigned int TEXT_BOTTOM = DT_BOTTOM;
-    constexpr unsigned int TEXT_CALCRECT = DT_CALCRECT;
-    constexpr unsigned int TEXT_CENTER = DT_CENTER;
-    constexpr unsigned int TEXT_EDITCONTROL = DT_EDITCONTROL;
-    constexpr unsigned int TEXT_END_ELLIPSIS = DT_END_ELLIPSIS;
-    constexpr unsigned int TEXT_EXPANDTABS = DT_EXPANDTABS;
-    constexpr unsigned int TEXT_EXTERNALLEADING = DT_EXTERNALLEADING;
-    constexpr unsigned int TEXT_INTERNAL = DT_INTERNAL;
-    constexpr unsigned int TEXT_LEFT = DT_LEFT;
-    constexpr unsigned int TEXT_MODIFYSTRING = DT_MODIFYSTRING;
-    constexpr unsigned int TEXT_NOCLIP = DT_NOCLIP;
-    constexpr unsigned int TEXT_NOPREFIX = DT_NOPREFIX;
-    constexpr unsigned int TEXT_PATH_ELLIPSIS = DT_PATH_ELLIPSIS;
-    constexpr unsigned int TEXT_RIGHT = DT_RIGHT;
-    constexpr unsigned int TEXT_RTLREADING = DT_RTLREADING;
-    constexpr unsigned int TEXT_SINGLELINE = DT_SINGLELINE;
-    constexpr unsigned int TEXT_TABSTOP = DT_TABSTOP;
-    constexpr unsigned int TEXT_TOP = DT_TOP;
-    constexpr unsigned int TEXT_VCENTER = DT_VCENTER;
-    constexpr unsigned int TEXT_WORDBREAK = DT_WORDBREAK;
-    constexpr unsigned int TEXT_WORD_ELLIPSIS = DT_WORD_ELLIPSIS;
+    constexpr auto TEXT_BOTTOM = DT_BOTTOM;
+    constexpr auto TEXT_CALCRECT = DT_CALCRECT;
+    constexpr auto TEXT_CENTER = DT_CENTER;
+    constexpr auto TEXT_EDITCONTROL = DT_EDITCONTROL;
+    constexpr auto TEXT_END_ELLIPSIS = DT_END_ELLIPSIS;
+    constexpr auto TEXT_EXPANDTABS = DT_EXPANDTABS;
+    constexpr auto TEXT_EXTERNALLEADING = DT_EXTERNALLEADING;
+    constexpr auto TEXT_INTERNAL = DT_INTERNAL;
+    constexpr auto TEXT_LEFT = DT_LEFT;
+    constexpr auto TEXT_MODIFYSTRING = DT_MODIFYSTRING;
+    constexpr auto TEXT_NOCLIP = DT_NOCLIP;
+    constexpr auto TEXT_NOPREFIX = DT_NOPREFIX;
+    constexpr auto TEXT_PATH_ELLIPSIS = DT_PATH_ELLIPSIS;
+    constexpr auto TEXT_RIGHT = DT_RIGHT;
+    constexpr auto TEXT_RTLREADING = DT_RTLREADING;
+    constexpr auto TEXT_SINGLELINE = DT_SINGLELINE;
+    constexpr auto TEXT_TABSTOP = DT_TABSTOP;
+    constexpr auto TEXT_TOP = DT_TOP;
+    constexpr auto TEXT_VCENTER = DT_VCENTER;
+    constexpr auto TEXT_WORDBREAK = DT_WORDBREAK;
+    constexpr auto TEXT_WORD_ELLIPSIS = DT_WORD_ELLIPSIS;
+
+    constexpr auto MESSAGE_MOUSEMOVE = WM_MOUSEMOVE;
+    constexpr auto MESSAGE_MOUSEWHEEL = WM_MOUSEWHEEL;
+    constexpr auto MESSAGE_LBUTTONDOWN = WM_LBUTTONDOWN;
+    constexpr auto MESSAGE_LBUTTONUP = WM_LBUTTONUP;
+    constexpr auto MESSAGE_LBUTTONDBLCLK = WM_LBUTTONDBLCLK;
+    constexpr auto MESSAGE_MBUTTONDOWN = WM_MBUTTONDOWN;
+    constexpr auto MESSAGE_MBUTTONUP = WM_MBUTTONUP;
+    constexpr auto MESSAGE_MBUTTONDBLCLK = WM_MBUTTONDBLCLK;
+    constexpr auto MESSAGE_RBUTTONDOWN = WM_RBUTTONDOWN;
+    constexpr auto MESSAGE_RBUTTONUP = WM_RBUTTONUP;
+    constexpr auto MESSAGE_RBUTTONDBLCLK = WM_RBUTTONDBLCLK;
+    constexpr auto MESSAGE_KEYDOWN = WM_KEYDOWN;
+    constexpr auto MESSAGE_KEYUP = WM_KEYUP;
+    constexpr auto MESSAGE_CHAR = WM_CHAR;
+    constexpr auto MESSAGE_ACTIVATE = WM_ACTIVATE;
+    constexpr auto MESSAGE_MOVE = WM_MOVE;
+    constexpr auto MESSAGE_SIZE = WM_SIZE;
 
     using Color = COLORREF;
     using FillStyle = FILLSTYLE;
     using Image = IMAGE;
     using LineStyle = LINESTYLE;
+    using Message = ExMessage;
 
     /**
      * 绘图设备相关函数
@@ -195,6 +222,32 @@ export namespace easyx {
      * 图形绘制相关函数
      */
 
+    void drawRoundRect(const int left, const int top, const int right, const int bottom,
+                       const int borderRadius,
+                       const bool line = true, const bool fill = true) {
+        if (line && fill) {
+            fillroundrect(left, top, right, bottom, borderRadius * 2, borderRadius * 2);
+        } else if (line) {
+            roundrect(left, top, right, bottom, borderRadius * 2, borderRadius * 2);
+        } else if (fill) {
+            solidroundrect(left, top, right, bottom, borderRadius * 2, borderRadius * 2);
+        }
+    }
+
+    void drawRoundRect(const RECT position, const int borderRadius,
+                       const bool line = true, const bool fill = true) {
+        if (line && fill) {
+            fillroundrect(position.left, position.top, position.right, position.bottom,
+                          borderRadius * 2, borderRadius * 2);
+        } else if (line) {
+            roundrect(position.left, position.top, position.right, position.bottom,
+                      borderRadius * 2, borderRadius * 2);
+        } else if (fill) {
+            solidroundrect(position.left, position.top, position.right, position.bottom,
+                           borderRadius * 2, borderRadius * 2);
+        }
+    }
+
     /**
      * 文字输出相关函数
      */
@@ -239,8 +292,21 @@ export namespace easyx {
     }
 
     /**
+     * 消息处理相关函数
+     */
+
+    bool peekMessage(ExMessage *msg) {
+        return peekmessage(msg);
+    }
+
+    void flushMessage() {
+        flushmessage();
+    }
+
+    /**
      * 其他函数
      */
+
     void beginBatchDraw() {
         BeginBatchDraw();
     }

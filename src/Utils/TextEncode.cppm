@@ -6,7 +6,7 @@ import ThirdParty;
 
 export std::string encode(std::string text) {
     switch (windows::getActiveCodePage()) {
-        case 936:
+        case 936: // GBK
             return Utf8ToGbk(text.data());
         default:
             return text;

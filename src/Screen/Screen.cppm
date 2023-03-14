@@ -3,10 +3,9 @@ export module Screen.Screen;
 import <list>;
 
 import Screen;
+import Screen.ScaleFactor;
 import ThirdParty;
 import Utils.Drawable;
-
-const float SCALE_FACTOR = windows::getScaleFactor();
 
 Screen::Screen() {
     const auto screenRect = windows::getScreenRect();
