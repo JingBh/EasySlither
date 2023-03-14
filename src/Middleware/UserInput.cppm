@@ -7,6 +7,7 @@ import <mutex>;
 import Screen.ScaleFactor;
 import ThirdParty;
 import Utils.Observer;
+import Utils.Throttle;
 
 export class SubjectInputDirection : public ISubject<int> {
 private:
@@ -308,7 +309,9 @@ public:
     }
 
     void update(const KeyType &message) final {
-        this->onKeyPress(message);
+        if (throttleFor(150, "keypress")) {
+            this->onKeyPress(message);
+        }
     }
 
     virtual void onKeyPress(KeyType keyType) = 0;

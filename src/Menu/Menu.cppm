@@ -9,12 +9,11 @@ import ThirdParty;
 import Utils.Colors;
 import Utils.Mediator;
 import Utils.TextEncode;
-import Utils.Throttle;
 
 std::unique_ptr <easyx::Image> Menu::renderImage() const {
     auto image = std::make_unique<easyx::Image>(
         itemWidth,
-        (itemHeight + itemGap) * static_cast<int>(items.size()) - itemGap);
+        (itemHeight + itemGap) * static_cast<int>(items.size()) - itemGap + 4);
 
     easyx::setWorkingImage(image.get());
     easyx::setBackgroundColor(GRAY_900);
@@ -25,6 +24,8 @@ std::unique_ptr <easyx::Image> Menu::renderImage() const {
         const auto item = items[i];
 
         if (activeItem == i) {
+            easyx::setLineStyle(2);
+            easyx::setLineColor(GRAY_100);
             easyx::setFillColor(GREEN_700);
         } else {
             easyx::setFillColor(GREEN_600);
@@ -32,11 +33,11 @@ std::unique_ptr <easyx::Image> Menu::renderImage() const {
 
         windows::Rect location{
             0,
-            static_cast<int>((itemHeight + itemGap) * i),
+            static_cast<int>((itemHeight + itemGap) * i) + 1,
             itemWidth,
             static_cast<int>(itemHeight * (i + 1) + itemGap * i)
         };
-        easyx::drawRoundRect(location, itemHeight / 2, false);
+        easyx::drawRoundRect(location, itemHeight / 2, activeItem == i);
 
         if (activeItem == i) {
             easyx::setBackgroundColor(GREEN_700);
