@@ -1,11 +1,13 @@
 export module Middleware.ScreenMediator;
 
+import <cstdlib>;
 import <iostream>;
 import <mutex>;
 import <string_view>;
 
 import Screen;
 import Screen.ScreenName;
+import Screen.UsernameInput;
 import Utils.Drawable;
 import Utils.Mediator;
 
@@ -33,18 +35,30 @@ public:
 #endif //DEBUG
                 this->useScreen(new MainScreen(screen));
                 break;
+
             case SINGLE_PLAYER:
 #ifdef DEBUG
                 std::cout << "Screen switched: Single player\n";
 #endif //DEBUG
                 // TODO
                 break;
+
             case MULTI_PLAYER:
 #ifdef DEBUG
                 std::cout << "Screen switched: Multi player\n";
 #endif //DEBUG
                 // TODO
                 break;
+
+            case USERNAME_INPUT:
+#ifdef DEBUG
+                std::cout << "Popup activated: Username input\n";
+#endif //DEBUG
+                usernameInput();
+                break;
+
+            case EXIT:
+                std::exit(0);
         }
     }
 

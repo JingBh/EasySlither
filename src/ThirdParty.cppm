@@ -314,6 +314,10 @@ export namespace easyx {
     void endBatchDraw() {
         EndBatchDraw();
     }
+
+    bool inputBox(char *str, int length, std::string_view prompt) {
+        return InputBox(str, length, prompt.data());
+    }
 }
 
 export std::string Utf8ToGbk(const char *src_str) {

@@ -29,6 +29,7 @@ add_executable(EasySlither
         src/Screen/ScaleFactor.cppm
         src/Screen/Screen.cppm
         src/Screen/ScreenName.cppm
+        src/Screen/UsernameInput.cppm
         src/ThirdParty.cppm
         src/Utils/Colors.cppm
         src/Utils/Drawable.cppm

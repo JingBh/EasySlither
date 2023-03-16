@@ -25,7 +25,7 @@ protected:
 
     int itemWidth = 192;
     int itemHeight = 48;
-    int itemGap = 32;
+    int itemGap = 24;
 
     void onKeyPress(const KeyType key) override;
 

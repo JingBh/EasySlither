@@ -5,6 +5,7 @@ import <memory>;
 import Menu;
 import Middleware.ScreenMediator;
 import Screen;
+import Screen.ScreenName;
 import ThirdParty;
 import Utils.Colors;
 import Utils.Drawable;
@@ -12,17 +13,19 @@ import Utils.TextEncode;
 
 void renderTitle(easyx::Image *image);
 
-void renderSign(easyx::Image *image);
-
 void renderMenu(easyx::Image *image, Menu *menu);
+
+void renderSignature(easyx::Image *image);
 
 MainScreen::MainScreen(Screen &screen)
     : screen{screen} {
     auto mediator = ScreenMediator::getInstance(&screen);
 
     this->menu = std::make_unique<Menu>();
+    this->menu->emplaceItem(mediator, ScreenName::USERNAME_INPUT, "修改昵称");
     this->menu->emplaceItem(mediator, ScreenName::SINGLE_PLAYER, "单人游戏");
     this->menu->emplaceItem(mediator, ScreenName::MULTI_PLAYER, "多人游戏");
+    this->menu->emplaceItem(mediator, ScreenName::EXIT, "退出游戏");
 }
 
 [[nodiscard]] std::unique_ptr <easyx::Image> MainScreen::renderImage() const {
@@ -34,8 +37,8 @@ MainScreen::MainScreen(Screen &screen)
     easyx::clearDevice();
 
     renderTitle(image.get());
-    renderSign(image.get());
     renderMenu(image.get(), this->menu.get());
+    renderSignature(image.get());
 
     easyx::setWorkingImage();
 
@@ -57,7 +60,14 @@ void renderTitle(easyx::Image *image) {
                     easyx::TEXT_CENTER | easyx::TEXT_SINGLELINE);
 }
 
-void renderSign(easyx::Image *image) {
+void renderMenu(easyx::Image *image, Menu *menu) {
+    windows::Point location{image->getwidth() / 2,
+                            image->getheight() / 3};
+
+    menu->renderAt(location, image, RenderAnchor::TOP_MIDDLE);
+}
+
+void renderSignature(easyx::Image *image) {
     windows::Rect location{8,
                            image->getheight() - 24,
                            image->getwidth(),
@@ -74,11 +84,4 @@ void renderSign(easyx::Image *image) {
     easyx::drawText(encode("22080206\t敬博浩"),
                     &location,
                     easyx::TEXT_RIGHT | easyx::TEXT_VCENTER | easyx::TEXT_EXPANDTABS);
-}
-
-void renderMenu(easyx::Image *image, Menu *menu) {
-    windows::Point location{image->getwidth() / 2,
-                            image->getheight() / 3};
-
-    menu->renderAt(location, image, RenderAnchor::TOP_MIDDLE);
 }
