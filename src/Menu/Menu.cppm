@@ -7,8 +7,14 @@ import Middleware.UserInput;
 import Screen.ScreenName;
 import ThirdParty;
 import Utils.Colors;
+import Utils.Drawable;
 import Utils.Mediator;
 import Utils.TextEncode;
+
+Menu::~Menu() {
+    ObservesKeyPress::~ObservesKeyPress();
+    ObservesMouseMove::~ObservesMouseMove();
+}
 
 std::unique_ptr <easyx::Image> Menu::renderImage() const {
     auto image = std::make_unique<easyx::Image>(

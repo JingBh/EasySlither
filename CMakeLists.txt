@@ -24,10 +24,11 @@ add_executable(EasySlither
         src/Menu/MenuItem.cppm
         src/Middleware/ScreenMediator.cppm
         src/Middleware/UserInput.cppm
-        src/Screen/ScreenInterface.cppm
+        src/Screen/LoadingScreen.cppm
         src/Screen/MainScreen.cppm
         src/Screen/ScaleFactor.cppm
         src/Screen/Screen.cppm
+        src/Screen/ScreenInterface.cppm
         src/Screen/ScreenName.cppm
         src/Screen/UsernameInput.cppm
         src/ThirdParty.cppm

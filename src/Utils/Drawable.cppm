@@ -18,7 +18,9 @@ protected:
     windows::Rect *renderRect = nullptr;
 
 public:
-    virtual ~Drawable() = default;
+    virtual ~Drawable() {
+        delete renderRect;
+    }
 
     [[nodiscard]] virtual std::unique_ptr <easyx::Image> renderImage() const = 0;
 

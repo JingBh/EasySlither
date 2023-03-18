@@ -6,6 +6,7 @@ export module Screen;
 
 import <list>;
 import <memory>;
+import <string>;
 
 import Menu;
 import Screen.ScreenName;
@@ -40,6 +41,8 @@ public:
 
 export class MainScreen : public LocationAwareDrawable {
 private:
+    // the menu object stored in a pointer
+    // as a workaround for renderImage is const
     std::unique_ptr <Menu> menu;
 
 protected:
@@ -47,6 +50,22 @@ protected:
 
 public:
     explicit MainScreen(Screen &screen);
+
+    [[nodiscard]] std::unique_ptr <easyx::Image> renderImage() const final;
+
+    void render() final;
+};
+
+export class LoadingScreen : public LocationAwareDrawable {
+private:
+    std::string title;
+
+protected:
+    const Screen &screen;
+
+public:
+    LoadingScreen(const Screen &screen, std::string title)
+        : screen{screen}, title{title} {}
 
     [[nodiscard]] std::unique_ptr <easyx::Image> renderImage() const final;
 

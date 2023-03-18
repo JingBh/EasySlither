@@ -32,6 +32,8 @@ protected:
     void onMouseMove(const windows::Point &point) override;
 
 public:
+    ~Menu() override;
+
     [[nodiscard]] std::unique_ptr <easyx::Image> renderImage() const override;
 
     void addItem(MenuItem &item);

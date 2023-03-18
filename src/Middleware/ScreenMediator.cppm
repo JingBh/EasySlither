@@ -2,6 +2,7 @@ export module Middleware.ScreenMediator;
 
 import <cstdlib>;
 import <iostream>;
+import <memory>;
 import <mutex>;
 import <string_view>;
 
@@ -12,11 +13,8 @@ import Utils.Drawable;
 import Utils.Mediator;
 
 export class ScreenMediator : public IMediator<ScreenName> {
-    using
-    enum ScreenName;
-
 private:
-    LocationAwareDrawable *currentScreen = nullptr;
+    std::unique_ptr <LocationAwareDrawable> currentScreen = nullptr;
     Screen &screen;
 
     static ScreenMediator *instance_;
@@ -29,17 +27,21 @@ protected:
 public:
     void notify(const ScreenName &screenName) final {
         switch (screenName) {
+            using
+            enum ScreenName;
+
             case MAIN:
 #ifdef DEBUG
                 std::cout << "Screen switched: Main\n";
 #endif //DEBUG
-                this->useScreen(new MainScreen(screen));
+                this->useScreen(std::make_unique<MainScreen>(screen));
                 break;
 
             case SINGLE_PLAYER:
 #ifdef DEBUG
-                std::cout << "Screen switched: Single player\n";
+                std::cout << "Screen switched: Loading\n";
 #endif //DEBUG
+                this->useScreen(std::make_unique<LoadingScreen>(screen, "正在加载世界..."));
                 // TODO
                 break;
 
@@ -47,6 +49,11 @@ public:
 #ifdef DEBUG
                 std::cout << "Screen switched: Multi player\n";
 #endif //DEBUG
+                // TODO
+#ifdef DEBUG
+                std::cout << "Screen switched: Loading\n";
+#endif //DEBUG
+                this->useScreen(std::make_unique<LoadingScreen>(screen, "正在连接到服务器..."));
                 // TODO
                 break;
 
@@ -62,18 +69,21 @@ public:
         }
     }
 
-    void useScreen(LocationAwareDrawable *newScreen) {
-        screen.removeElement(currentScreen);
-        screen.addElement(newScreen);
-        delete currentScreen;
-        currentScreen = newScreen;
+    void useScreen(std::unique_ptr <LocationAwareDrawable> newScreen) {
+        if (currentScreen.get() != nullptr) {
+            screen.removeElement(currentScreen.get());
+        }
+
+        screen.addElement(newScreen.get());
+        currentScreen = std::move(newScreen);
     }
 
     static ScreenMediator *getInstance(Screen *screen = nullptr) {
-        [[maybe_unused]] std::lock_guard <std::mutex> lock(mutex_);
+        mutex_.lock();
         if (instance_ == nullptr && screen != nullptr) {
             instance_ = new ScreenMediator(*screen);
         }
+        mutex_.unlock();
 
         return instance_;
     }

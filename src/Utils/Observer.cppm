@@ -35,7 +35,12 @@ public:
     }
 
     void notify(const T &message) {
-        for (auto observer: observers) {
+        // `observers` may change during iteration
+        // copy elements
+        std::list < IObserver<T> * > observersCopy = observers;
+
+        // process elements
+        for (IObserver<T> *observer: observersCopy) {
             observer->update(message);
         }
     }

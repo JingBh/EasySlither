@@ -115,10 +115,11 @@ public:
     }
 
     static SubjectInputDirection *getInstance() {
-        [[maybe_unused]] std::lock_guard <std::mutex> lock(mutex_);
+        mutex_.lock();
         if (instance_ == nullptr) {
             instance_ = new SubjectInputDirection();
         }
+        mutex_.unlock();
 
         return instance_;
     }
@@ -168,10 +169,11 @@ public:
     }
 
     static SubjectMouseMove *getInstance() {
-        [[maybe_unused]] std::lock_guard <std::mutex> lock(mutex_);
+        mutex_.lock();
         if (instance_ == nullptr) {
             instance_ = new SubjectMouseMove();
         }
+        mutex_.unlock();
 
         return instance_;
     }
@@ -217,52 +219,35 @@ public:
     void update() {
         easyx::Message message;
 
-        bool notified = false;
-
         while (easyx::peekMessage(&message)) {
-            notified = true;
             switch (message.message) {
                 case easyx::MESSAGE_LBUTTONDOWN:
-                    this->notify(KeyType::CONFIRM);
-                    break;
+                    return this->notifyAndFlush(KeyType::CONFIRM);
                 case easyx::MESSAGE_RBUTTONDOWN:
-                    this->notify(KeyType::INFO);
-                    break;
+                    return this->notifyAndFlush(KeyType::INFO);
                 case easyx::MESSAGE_KEYDOWN:
                     switch (message.vkcode) {
                         case windows::VKEY_TAB:
-                            this->notify(KeyType::SWITCH);
-                            break;
+                            return this->notifyAndFlush(KeyType::SWITCH);
                         case windows::VKEY_SPACE:
                         case windows::VKEY_ENTER:
-                            this->notify(KeyType::CONFIRM);
-                            break;
+                            return this->notifyAndFlush(KeyType::CONFIRM);
                         case windows::VKEY_ESCAPE:
-                            this->notify(KeyType::CANCEL);
-                            break;
+                            return this->notifyAndFlush(KeyType::CANCEL);
                         case windows::VKEY_UP:
-                            this->notify(KeyType::UP);
-                            break;
+                            return this->notifyAndFlush(KeyType::UP);
                         case windows::VKEY_DOWN:
-                            this->notify(KeyType::DOWN);
-                            break;
+                            return this->notifyAndFlush(KeyType::DOWN);
                         case windows::VKEY_LEFT:
-                            this->notify(KeyType::LEFT);
-                            break;
+                            return this->notifyAndFlush(KeyType::LEFT);
                         case windows::VKEY_RIGHT:
-                            this->notify(KeyType::RIGHT);
-                            break;
+                            return this->notifyAndFlush(KeyType::RIGHT);
                         default:
-                            notified = false;
+                            break;
                     }
-                    break;
                 default:
-                    notified = false;
+                    break;
             }
-        }
-
-        if (notified) {
-            easyx::flushMessage();
         }
 
         windows::XinputState state;
@@ -285,11 +270,17 @@ public:
         }
     }
 
+    void notifyAndFlush(const KeyType event) {
+        easyx::flushMessage();
+        this->notify(event);
+    }
+
     static SubjectKeyPress *getInstance() {
-        [[maybe_unused]] std::lock_guard <std::mutex> lock(mutex_);
+        mutex_.lock();
         if (instance_ == nullptr) {
             instance_ = new SubjectKeyPress();
         }
+        mutex_.unlock();
 
         return instance_;
     }
