@@ -15,10 +15,18 @@ link_directories(${CMAKE_SOURCE_DIR}/lib)
 
 link_libraries(EasyXa EasyXw XInput)
 
-add_executable(EasySlither
-        src/main.cpp
+set(SOURCE_FILES_UNIVERSAL
         src/Game/GameInterface.cppm
         src/Game/World.cppm
+        src/Utils/Frames.cppm
+        src/Utils/Mediator.cppm
+        src/Utils/Observer.cppm
+        src/Utils/TextEncode.cppm
+        src/Utils/Throttle.cppm
+        src/Utils/Time.cppm)
+
+set(SOURCE_FILES_CLIENT
+        src/client.cpp
         src/Menu/Menu.cppm
         src/Menu/MenuInterface.cppm
         src/Menu/MenuItem.cppm
@@ -33,11 +41,25 @@ add_executable(EasySlither
         src/Screen/UsernameInput.cppm
         src/ThirdParty.cppm
         src/Utils/Colors.cppm
-        src/Utils/Drawable.cppm
-        src/Utils/Frames.cppm
-        src/Utils/Mediator.cppm
-        src/Utils/Observer.cppm
-        src/Utils/TextEncode.cppm
-        src/Utils/Throttle.cppm
-        src/Utils/Time.cppm
-        extra/application.manifest)
+        src/Utils/Drawable.cppm)
+
+set(SOURCE_FILES_SERVER
+        src/server.cpp)
+
+set(RESOURCE_FILES
+        assets/app.rc
+        assets/extra/application.manifest)
+
+if (WIN32)
+    set(CMAKE_RC_COMPILER_INIT windres)
+    enable_language(RC)
+    set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
+    add_executable(EasySlither WIN32
+            ${SOURCE_FILES_CLIENT}
+            ${SOURCE_FILES_UNIVERSAL}
+            ${RESOURCE_FILES})
+endif ()
+
+add_executable(EasySlitherServer
+        ${SOURCE_FILES_SERVER}
+        ${SOURCE_FILES_UNIVERSAL})

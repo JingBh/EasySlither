@@ -1,10 +1,14 @@
+#define __SPECSTRINGS_STRICT_LEVEL 0 // to suppress warnings
+
+#include <windows.h>
+
 import Middleware.ScreenMediator;
 import Middleware.UserInput;
 import Screen;
 import Screen.ScreenName;
 import Utils.Frames;
 
-int main() {
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
     auto screen = Screen();
 
     // Events (for observers)
