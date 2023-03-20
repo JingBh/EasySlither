@@ -255,17 +255,17 @@ public:
         const auto dwResult = windows::XinputGetState(&state);
         if (dwResult == windows::XINPUT_SUCCESS) {
             if (state.Gamepad.wButtons & windows::XINPUT_A) {
-                return this->notify(KeyType::CONFIRM);
+                return this->notifyAndThrottle(KeyType::CONFIRM);
             } else if (state.Gamepad.wButtons & windows::XINPUT_B) {
-                return this->notify(KeyType::CANCEL);
+                return this->notifyAndThrottle(KeyType::CANCEL);
             } else if (state.Gamepad.wButtons & windows::XINPUT_DPAD_UP) {
-                return this->notify(KeyType::UP);
+                return this->notifyAndThrottle(KeyType::UP);
             } else if (state.Gamepad.wButtons & windows::XINPUT_DPAD_DOWN) {
-                return this->notify(KeyType::DOWN);
+                return this->notifyAndThrottle(KeyType::DOWN);
             } else if (state.Gamepad.wButtons & windows::XINPUT_DPAD_RIGHT) {
-                return this->notify(KeyType::RIGHT);
+                return this->notifyAndThrottle(KeyType::RIGHT);
             } else if (state.Gamepad.wButtons & windows::XINPUT_DPAD_LEFT) {
-                return this->notify(KeyType::LEFT);
+                return this->notifyAndThrottle(KeyType::LEFT);
             }
         }
     }
@@ -273,6 +273,12 @@ public:
     void notifyAndFlush(const KeyType event) {
         easyx::flushMessage();
         this->notify(event);
+    }
+
+    void notifyAndThrottle(const KeyType event) {
+        if (throttleFor(150, "keypress")) {
+            this->notify(event);
+        }
     }
 
     static SubjectKeyPress *getInstance() {
@@ -300,9 +306,7 @@ public:
     }
 
     void update(const KeyType &message) final {
-        if (throttleFor(150, "keypress")) {
-            this->onKeyPress(message);
-        }
+        this->onKeyPress(message);
     }
 
     virtual void onKeyPress(KeyType keyType) = 0;
