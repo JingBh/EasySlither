@@ -18,7 +18,7 @@ Menu::~Menu() {
 
 std::unique_ptr <easyx::Image> Menu::renderImage() const {
     auto image = std::make_unique<easyx::Image>(
-        itemWidth,
+        itemWidth + 4,
         (itemHeight + itemGap) * static_cast<int>(items.size()) - itemGap + 4);
 
     easyx::setWorkingImage(image.get());
@@ -30,7 +30,7 @@ std::unique_ptr <easyx::Image> Menu::renderImage() const {
         const auto item = items[i];
 
         if (activeItem == i) {
-            easyx::setLineStyle(2);
+            easyx::setLineStyle(2); // +4 in size and +2 in position are the margins for the border here
             easyx::setLineColor(GRAY_100);
             easyx::setFillColor(GREEN_700);
         } else {
@@ -38,9 +38,9 @@ std::unique_ptr <easyx::Image> Menu::renderImage() const {
         }
 
         windows::Rect location{
-            0,
+            2,
             static_cast<int>((itemHeight + itemGap) * i) + 1,
-            itemWidth,
+            itemWidth + 2,
             static_cast<int>(itemHeight * (i + 1) + itemGap * i)
         };
         easyx::drawRoundRect(location, itemHeight / 2, activeItem == i);
