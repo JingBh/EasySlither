@@ -1,4 +1,4 @@
-export module Middleware.UserInput;
+export module Internal.UserInput;
 
 import <cmath>;
 import <numbers>;

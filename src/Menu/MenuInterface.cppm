@@ -8,7 +8,7 @@ import <memory>;
 import <string>;
 import <vector>;
 
-import Middleware.UserInput;
+import Internal.UserInput;
 import Screen.ScreenName;
 import ThirdParty;
 import Utils.Drawable;

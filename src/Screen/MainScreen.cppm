@@ -3,7 +3,7 @@ export module Screen.MainScreen;
 import <memory>;
 
 import Menu;
-import Middleware.ScreenMediator;
+import Internal.ScreenMediator;
 import Screen;
 import Screen.ScreenName;
 import ThirdParty;

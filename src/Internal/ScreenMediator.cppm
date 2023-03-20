@@ -1,4 +1,4 @@
-export module Middleware.ScreenMediator;
+export module Internal.ScreenMediator;
 
 import <cstdlib>;
 import <iostream>;

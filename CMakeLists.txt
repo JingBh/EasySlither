@@ -27,11 +27,11 @@ set(SOURCE_FILES_UNIVERSAL
 
 set(SOURCE_FILES_CLIENT
         src/client.cpp
+        src/Internal/ScreenMediator.cppm
+        src/Internal/UserInput.cppm
         src/Menu/Menu.cppm
         src/Menu/MenuInterface.cppm
         src/Menu/MenuItem.cppm
-        src/Middleware/ScreenMediator.cppm
-        src/Middleware/UserInput.cppm
         src/Screen/LoadingScreen.cppm
         src/Screen/MainScreen.cppm
         src/Screen/ScaleFactor.cppm

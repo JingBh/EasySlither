@@ -3,7 +3,7 @@ export module Menu.Menu;
 import <memory>;
 
 import Menu;
-import Middleware.UserInput;
+import Internal.UserInput;
 import Screen.ScreenName;
 import ThirdParty;
 import Utils.Colors;
