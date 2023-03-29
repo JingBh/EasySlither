@@ -6,6 +6,8 @@ import <memory>;
 import <mutex>;
 import <string_view>;
 
+import Internal.GameStore;
+import Network.ConnectionEnd;
 import Screen;
 import Screen.ScreenName;
 import Screen.UsernameInput;
@@ -15,14 +17,15 @@ import Utils.Mediator;
 export class ScreenMediator : public IMediator<ScreenName> {
 private:
     std::unique_ptr <LocationAwareDrawable> currentScreen = nullptr;
+    GameStore <ConnectionEnd::CLIENT> *store;
     Screen &screen;
 
-    static ScreenMediator *instance_;
-    static std::mutex mutex_;
+    static inline ScreenMediator *instance_{nullptr};
+    static inline std::mutex mutex_;
 
 protected:
     explicit ScreenMediator(Screen &screen)
-        : screen{screen} {}
+        : screen{screen}, store{GameStore<ConnectionEnd::CLIENT>::getInstance()} {}
 
 public:
     void notify(const ScreenName &screenName) final {
@@ -42,7 +45,10 @@ public:
                 std::cout << "Screen switched: Loading\n";
 #endif //DEBUG
                 this->useScreen(std::make_unique<LoadingScreen>(screen, "正在加载世界..."));
-                // TODO
+                // DEBUG: Load some test data
+                // TODO: server startup and real logic
+                this->store->generateTestData();
+                this->useScreen(std::make_unique<GameScreen>(screen, this->store->getWorld()));
                 break;
 
             case MULTI_PLAYER:
@@ -70,7 +76,7 @@ public:
     }
 
     void useScreen(std::unique_ptr <LocationAwareDrawable> newScreen) {
-        if (currentScreen.get() != nullptr) {
+        if (currentScreen != nullptr) {
             screen.removeElement(currentScreen.get());
         }
 
@@ -88,6 +94,3 @@ public:
         return instance_;
     }
 };
-
-ScreenMediator *ScreenMediator::instance_{nullptr};
-std::mutex ScreenMediator::mutex_;

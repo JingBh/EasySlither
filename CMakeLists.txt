@@ -16,11 +16,23 @@ link_directories(${CMAKE_SOURCE_DIR}/lib)
 link_libraries(EasyXa EasyXw XInput)
 
 set(SOURCE_FILES_UNIVERSAL
+        src/Game/Config.cppm
+        src/Game/Food.cppm
         src/Game/GameInterface.cppm
+        src/Game/Sector.cppm
+        src/Game/Snake.cppm
         src/Game/World.cppm
+        src/Internal/GameServer.cppm
+        src/Internal/GameStore.cppm
+        src/Network/Connection.cppm
+        src/Network/ConnectionEnd.cppm
+        src/Network/ConnectionType.cppm
+        src/Network/ITCQueue.cppm
+        src/Utils/BoundBox.cppm
         src/Utils/Frames.cppm
         src/Utils/Mediator.cppm
         src/Utils/Observer.cppm
+        src/Utils/Random.cppm
         src/Utils/TextEncode.cppm
         src/Utils/Throttle.cppm
         src/Utils/Time.cppm)
@@ -32,6 +44,7 @@ set(SOURCE_FILES_CLIENT
         src/Menu/Menu.cppm
         src/Menu/MenuInterface.cppm
         src/Menu/MenuItem.cppm
+        src/Screen/GameScreen.cppm
         src/Screen/LoadingScreen.cppm
         src/Screen/MainScreen.cppm
         src/Screen/ScaleFactor.cppm

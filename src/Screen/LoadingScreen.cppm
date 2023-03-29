@@ -25,8 +25,3 @@ import Utils.TextEncode;
 
     return image;
 }
-
-void LoadingScreen::render() {
-    windows::Point renderLocation{0, 0};
-    this->renderAt(renderLocation);
-}

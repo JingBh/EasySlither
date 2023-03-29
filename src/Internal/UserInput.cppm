@@ -11,8 +11,8 @@ import Utils.Throttle;
 
 export class SubjectInputDirection : public ISubject<int> {
 private:
-    static SubjectInputDirection *instance_;
-    static std::mutex mutex_;
+    static inline SubjectInputDirection *instance_{nullptr};
+    static inline std::mutex mutex_;
 
 public:
     void update() {
@@ -125,9 +125,6 @@ public:
     }
 };
 
-SubjectInputDirection *SubjectInputDirection::instance_{nullptr};
-std::mutex SubjectInputDirection::mutex_;
-
 export class ObservesInputDirection : public IObserver<int> {
 public:
     ObservesInputDirection() {
@@ -149,8 +146,8 @@ export class SubjectMouseMove : public ISubject<windows::Point> {
 private:
     windows::Point lastPoint{-2, -2};
 
-    static SubjectMouseMove *instance_;
-    static std::mutex mutex_;
+    static inline SubjectMouseMove *instance_{nullptr};
+    static inline std::mutex mutex_;
 
 public:
     void update(windows::WindowHandle handle) {
@@ -178,9 +175,6 @@ public:
         return instance_;
     }
 };
-
-SubjectMouseMove *SubjectMouseMove::instance_{nullptr};
-std::mutex SubjectMouseMove::mutex_;
 
 export class ObservesMouseMove : public IObserver<windows::Point> {
 public:
@@ -212,8 +206,8 @@ export enum class KeyType {
 
 export class SubjectKeyPress : public ISubject<KeyType> {
 private:
-    static SubjectKeyPress *instance_;
-    static std::mutex mutex_;
+    static inline SubjectKeyPress *instance_{nullptr};
+    static inline std::mutex mutex_;
 
 public:
     void update() {
@@ -291,9 +285,6 @@ public:
         return instance_;
     }
 };
-
-SubjectKeyPress *SubjectKeyPress::instance_{nullptr};
-std::mutex SubjectKeyPress::mutex_;
 
 export class ObservesKeyPress : public IObserver<KeyType> {
 public:

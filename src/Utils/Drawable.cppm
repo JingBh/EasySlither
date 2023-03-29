@@ -56,5 +56,8 @@ public:
 
 export class LocationAwareDrawable : public Drawable {
 public:
-    virtual void render() = 0;
+    virtual void render() {
+        windows::Point renderLocation{0, 0};
+        this->renderAt(renderLocation);
+    };
 };

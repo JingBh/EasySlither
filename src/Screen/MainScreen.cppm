@@ -45,11 +45,6 @@ MainScreen::MainScreen(Screen &screen)
     return image;
 }
 
-void MainScreen::render() {
-    windows::Point renderLocation{0, 0};
-    this->renderAt(renderLocation);
-}
-
 void renderTitle(easyx::Image *image) {
     windows::Rect location{0,
                            image->getheight() / 7,
