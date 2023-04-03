@@ -33,7 +33,6 @@ set(SOURCE_FILES_UNIVERSAL
         src/Utils/Mediator.cppm
         src/Utils/Observer.cppm
         src/Utils/Random.cppm
-        src/Utils/TextEncode.cppm
         src/Utils/Throttle.cppm
         src/Utils/Time.cppm)
 
@@ -54,7 +53,8 @@ set(SOURCE_FILES_CLIENT
         src/Screen/UsernameInput.cppm
         src/ThirdParty.cppm
         src/Utils/Colors.cppm
-        src/Utils/Drawable.cppm)
+        src/Utils/Drawable.cppm
+        src/Utils/TextEncode.cppm)
 
 set(SOURCE_FILES_SERVER
         src/server.cpp)
