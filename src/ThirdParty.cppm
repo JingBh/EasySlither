@@ -26,6 +26,8 @@ export namespace windows {
     constexpr auto XINPUT_RIGHT_THUMB_DEADZONE = XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
     constexpr auto XINPUT_A = XINPUT_GAMEPAD_A;
     constexpr auto XINPUT_B = XINPUT_GAMEPAD_B;
+    constexpr auto XINPUT_X = XINPUT_GAMEPAD_X;
+    constexpr auto XINPUT_Y = XINPUT_GAMEPAD_Y;
     constexpr auto XINPUT_DPAD_UP = XINPUT_GAMEPAD_DPAD_UP;
     constexpr auto XINPUT_DPAD_DOWN = XINPUT_GAMEPAD_DPAD_DOWN;
     constexpr auto XINPUT_DPAD_LEFT = XINPUT_GAMEPAD_DPAD_LEFT;
@@ -39,6 +41,7 @@ export namespace windows {
     constexpr auto VKEY_DOWN = VK_DOWN;
     constexpr auto VKEY_LEFT = VK_LEFT;
     constexpr auto VKEY_RIGHT = VK_RIGHT;
+    constexpr auto VKEY_MOUSE_L = VK_LBUTTON;
 
     /**
      * Data structures
@@ -146,6 +149,24 @@ export namespace easyx {
     constexpr auto MESSAGE_MOVE = WM_MOVE;
     constexpr auto MESSAGE_SIZE = WM_SIZE;
 
+    constexpr auto ROP2_BLACK = R2_BLACK;
+    constexpr auto ROP2_NOTMERGEPEN = R2_NOTMERGEPEN;
+    constexpr auto ROP2_MASKNOTPEN = R2_MASKNOTPEN;
+    constexpr auto ROP2_NOTCOPYPEN = R2_NOTCOPYPEN;
+    constexpr auto ROP2_MASKPENNOT = R2_MASKPENNOT;
+    constexpr auto ROP2_NOT = R2_NOT;
+    constexpr auto ROP2_XORPEN = R2_XORPEN;
+    constexpr auto ROP2_NOTMASKPEN = R2_NOTMASKPEN;
+    constexpr auto ROP2_MASKPEN = R2_MASKPEN;
+    constexpr auto ROP2_NOTXORPEN = R2_NOTXORPEN;
+    constexpr auto ROP2_NOP = R2_NOP;
+    constexpr auto ROP2_MERGENOTPEN = R2_MERGENOTPEN;
+    constexpr auto ROP2_COPYPEN = R2_COPYPEN;
+    constexpr auto ROP2_MERGEPENNOT = R2_MERGEPENNOT;
+    constexpr auto ROP2_MERGEPEN = R2_MERGEPEN;
+    constexpr auto ROP2_WHITE = R2_WHITE;
+    constexpr auto ROP2_LAST = R2_LAST;
+
     using Color = COLORREF;
     using FillStyle = FILLSTYLE;
     using Image = IMAGE;
@@ -170,6 +191,10 @@ export namespace easyx {
 
     void setAspectRatio(const float x, const float y) {
         setaspectratio(x, y);
+    }
+
+    void setOrigin(const int x, const int y) {
+        setorigin(x, y);
     }
 
     /**
@@ -222,6 +247,47 @@ export namespace easyx {
      * 图形绘制相关函数
      */
 
+    void drawCircle(const int x, const int y, const int radius,
+                    const bool line = true, const bool fill = true) {
+        if (line && fill) {
+            fillcircle(x, y, radius);
+        } else if (line) {
+            circle(x, y, radius);
+        } else if (fill) {
+            solidcircle(x, y, radius);
+        }
+    }
+
+    void drawCircle(const windows::Point position, const int radius,
+                    const bool line = true, const bool fill = true) {
+        drawCircle(position.x, position.y, radius, line, fill);
+    }
+
+    void drawLine(const int x1, const int y1, const int x2, const int y2) {
+        line(x1, y1, x2, y2);
+    }
+
+    void drawLine(const windows::Point p1, const windows::Point p2) {
+        drawLine(p1.x, p1.y, p2.x, p2.y);
+    }
+
+    void drawRectangle(const int left, const int top, const int right, const int bottom,
+                       const bool line = true, const bool fill = true) {
+        if (line && fill) {
+            fillrectangle(left, top, right, bottom);
+        } else if (line) {
+            rectangle(left, top, right, bottom);
+        } else if (fill) {
+            solidrectangle(left, top, right, bottom);
+        }
+    }
+
+    void drawRectangle(const RECT position,
+                       const bool line = true, const bool fill = true) {
+        drawRectangle(position.left, position.top, position.right, position.bottom,
+                      line, fill);
+    }
+
     void drawRoundRect(const int left, const int top, const int right, const int bottom,
                        const int borderRadius,
                        const bool line = true, const bool fill = true) {
@@ -236,16 +302,12 @@ export namespace easyx {
 
     void drawRoundRect(const RECT position, const int borderRadius,
                        const bool line = true, const bool fill = true) {
-        if (line && fill) {
-            fillroundrect(position.left, position.top, position.right, position.bottom,
-                          borderRadius * 2, borderRadius * 2);
-        } else if (line) {
-            roundrect(position.left, position.top, position.right, position.bottom,
-                      borderRadius * 2, borderRadius * 2);
-        } else if (fill) {
-            solidroundrect(position.left, position.top, position.right, position.bottom,
-                           borderRadius * 2, borderRadius * 2);
-        }
+        drawRoundRect(position.left, position.top, position.right, position.bottom,
+                      borderRadius, line, fill);
+    }
+
+    void setROP2(const int mode) {
+        setrop2(mode);
     }
 
     /**
@@ -254,6 +316,10 @@ export namespace easyx {
 
     int drawText(std::string_view text, RECT *location, const unsigned int style = 0) {
         return drawtext(text.data(), location, style);
+    }
+
+    void setTextColor(const COLORREF color) {
+        settextcolor(color);
     }
 
     void setFont(const long size,
@@ -315,8 +381,8 @@ export namespace easyx {
         EndBatchDraw();
     }
 
-    bool inputBox(char *str, int length, std::string_view prompt) {
-        return InputBox(str, length, prompt.data());
+    bool inputBox(std::string &str, std::string_view prompt) {
+        return InputBox(str.data(), static_cast<int>(str.capacity()), prompt.data(), nullptr, nullptr, 0, 0, false);
     }
 }
 

@@ -1,5 +1,7 @@
 export module Game.Sector;
 
+import <cmath>;
+
 import Game;
 import Utils.Random;
 import Utils.Throttle;
@@ -38,7 +40,6 @@ void Sector::fillFood(const bool gradually) {
         return;
     }
 
-    // TODO: make this better
     this->addFood(this->generateFood());
 }
 
@@ -48,6 +49,9 @@ uint16_t Sector::distanceTo(const Sector &other) const {
 }
 
 uint16_t Sector::distanceToCenter() const {
-    const uint8_t center = this->config.sectorCountEdge / 2;
-    return this->distanceTo(Sector{center, center, this->config});
+    if (this->x == 0 && this->y == 0) {
+        return 0; // to prevent stack overflow
+    }
+
+    return this->distanceTo(Sector{this->config, 0, 0});
 }

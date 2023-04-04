@@ -54,6 +54,14 @@ void Screen::refresh() const {
     return static_cast<int>(static_cast<float>(this->height) / SCALE_FACTOR);
 }
 
+[[nodiscard]] int Screen::getUnscaledWidth() const {
+    return this->width;
+}
+
+[[nodiscard]] int Screen::getUnscaledHeight() const {
+    return this->height;
+}
+
 [[nodiscard]] windows::WindowHandle Screen::getHandle() const {
     return this->handle;
 }

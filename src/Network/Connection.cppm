@@ -6,18 +6,14 @@ import <vector>;
 import Internal.GameStore;
 export import Network.ConnectionEnd;
 export import Network.ConnectionType;
-import Network.ITCQueue;
 
 export template<ConnectionEnd E>
 class IConnection;
 
-export template<ConnectionEnd E>
-class LocalConnection;
-
 template<ConnectionEnd E>
 class IConnection {
 protected:
-    GameStore <E> *store = GameStore<E>::getInstance();
+    GameStore *store = GameStore::getInstance();
 
 protected:
     IConnection() = default;
@@ -39,32 +35,6 @@ public:
 
 template<>
 class IConnection<ConnectionEnd::SERVER> {
-public:
-
-};
-
-template<ConnectionEnd E>
-class LocalConnection : public IConnection<E> {
-public:
-    LocalConnection() = default;
-};
-
-template<>
-class LocalConnection<ConnectionEnd::CLIENT> {
-protected:
-    ITCQueue <ConnectionEnd::CLIENT> *myQueue = ITCQueue<ConnectionEnd::CLIENT>::getInstance();
-    ITCQueue <ConnectionEnd::SERVER> *targetQueue = ITCQueue<ConnectionEnd::SERVER>::getInstance();
-
-public:
-
-};
-
-template<>
-class LocalConnection<ConnectionEnd::SERVER> {
-protected:
-    ITCQueue <ConnectionEnd::SERVER> *myQueue = ITCQueue<ConnectionEnd::SERVER>::getInstance();
-    ITCQueue <ConnectionEnd::CLIENT> *targetQueue = ITCQueue<ConnectionEnd::CLIENT>::getInstance();
-
 public:
 
 };

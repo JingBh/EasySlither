@@ -6,7 +6,7 @@ import <map>;
 
 import Utils.Time;
 
-std::map<std::string_view, unsigned long> lastTime;
+std::map<std::string_view, unsigned long long> lastTime;
 
 export bool throttleFor(int milliseconds, std::string_view name) {
     auto currentTime = getTickCount();

@@ -10,9 +10,7 @@ export struct GameConfig {
     uint16_t worldRadius = 16384;
     uint16_t maxBodyParts = 411;
     uint16_t sectorSize = 300;
-    uint16_t sectorCountEdge = static_cast<uint16_t>(2 * worldRadius / sectorSize);
+    uint8_t sectorCountEdge = static_cast<uint8_t>(2 * worldRadius / sectorSize);
     uint16_t foodDensity = 10;
     uint16_t targetSnakeCount = 100;
-    double speedAngularDelta = 4.8;
-    double speedAngularBase = 0.033;
 };

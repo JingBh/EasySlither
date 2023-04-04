@@ -1,26 +1,25 @@
 export module Internal.GameStore;
 
-#ifdef DEBUG
-
-import <cmath>;
-import <cstdint>;
-import <numbers>;
-
-#endif //DEBUG
-
+import <condition_variable>;
 import <memory>;
 import <mutex>;
+import <string>;
 
 import Game;
 import Game.Config;
-import Network.ConnectionEnd;
 
-export template<ConnectionEnd E>
-class GameStore {
+export class GameStore {
+public:
+    std::string username = "玩家";
+    std::mutex worldMutex;
+
+    std::condition_variable worldInitialized;
+    std::mutex worldInitializationMutex;
+
 private:
     std::unique_ptr <World> world;
 
-    static inline GameStore<E> *instance_{nullptr};
+    static inline GameStore *instance_{nullptr};
     static inline std::mutex mutex_;
 
 public:
@@ -32,33 +31,10 @@ public:
         return this->world.get();
     }
 
-#ifdef DEBUG
-
-    void generateTestData() {
-        const auto config = GameConfig{};
-        this->createWorld(config);
-
-        // add foods
-        for (int i = 0; i < 360; i += 10) {
-            auto *food = new Food(
-                config,
-                static_cast<int16_t>(100 * std::cos(std::numbers::pi * i / 180)),
-                static_cast<int16_t>(100 * std::sin(std::numbers::pi * i / 180)),
-                20);
-            this->world->addFood(food);
-        }
-
-        // add player snake
-        auto *player = new Snake(0, 0, 0, false, true, "Player");
-        this->world->addSnake(player);
-    }
-
-#endif //DEBUG
-
-    static GameStore<E> *getInstance() {
+    static GameStore *getInstance() {
         mutex_.lock();
         if (instance_ == nullptr) {
-            instance_ = new GameStore<E>();
+            instance_ = new GameStore();
         }
         mutex_.unlock();
 

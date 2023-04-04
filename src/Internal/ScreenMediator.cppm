@@ -6,6 +6,7 @@ import <memory>;
 import <mutex>;
 import <string_view>;
 
+import Internal.GameServer;
 import Internal.GameStore;
 import Network.ConnectionEnd;
 import Screen;
@@ -17,7 +18,7 @@ import Utils.Mediator;
 export class ScreenMediator : public IMediator<ScreenName> {
 private:
     std::unique_ptr <LocationAwareDrawable> currentScreen = nullptr;
-    GameStore <ConnectionEnd::CLIENT> *store;
+    GameStore *store;
     Screen &screen;
 
     static inline ScreenMediator *instance_{nullptr};
@@ -25,7 +26,7 @@ private:
 
 protected:
     explicit ScreenMediator(Screen &screen)
-        : screen{screen}, store{GameStore<ConnectionEnd::CLIENT>::getInstance()} {}
+        : screen{screen}, store{GameStore::getInstance()} {}
 
 public:
     void notify(const ScreenName &screenName) final {
@@ -41,33 +42,34 @@ public:
                 break;
 
             case SINGLE_PLAYER:
+                GameServer::start();
 #ifdef DEBUG
-                std::cout << "Screen switched: Loading\n";
+                std::cout << "Screen switched: Game\n";
 #endif //DEBUG
-                this->useScreen(std::make_unique<LoadingScreen>(screen, "正在加载世界..."));
-                // DEBUG: Load some test data
-                // TODO: server startup and real logic
-                this->store->generateTestData();
-                this->useScreen(std::make_unique<GameScreen>(screen, this->store->getWorld()));
+                this->useScreen(std::make_unique<GameScreen>(screen));
                 break;
 
             case MULTI_PLAYER:
 #ifdef DEBUG
                 std::cout << "Screen switched: Multi player\n";
 #endif //DEBUG
-                // TODO
+                // TODO: Server selection
 #ifdef DEBUG
                 std::cout << "Screen switched: Loading\n";
 #endif //DEBUG
                 this->useScreen(std::make_unique<LoadingScreen>(screen, "正在连接到服务器..."));
-                // TODO
+                // TODO: connect to server
+#ifdef DEBUG
+                std::cout << "Screen switched: Game\n";
+#endif //DEBUG
+                // this->useScreen(std::make_unique<GameScreen>(screen));
                 break;
 
             case USERNAME_INPUT:
 #ifdef DEBUG
                 std::cout << "Popup activated: Username input\n";
 #endif //DEBUG
-                usernameInput();
+                UsernameInput()();
                 break;
 
             case EXIT:

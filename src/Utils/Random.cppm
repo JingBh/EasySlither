@@ -20,3 +20,7 @@ export double randomDouble(const double min, const double max) {
     doubleDis = std::uniform_real_distribution<double>(min, max);
     return doubleDis(gen);
 }
+
+export double randomDouble() {
+    return randomDouble(0, 1);
+}

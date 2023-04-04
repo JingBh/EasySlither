@@ -15,6 +15,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     auto subjectInputDirection = SubjectInputDirection::getInstance();
     auto subjectMouseMove = SubjectMouseMove::getInstance();
     auto subjectKeyPress = SubjectKeyPress::getInstance();
+    auto subjectKeyHold = SubjectKeyHold::getInstance();
 
     // Mediators
     auto screenMediator = ScreenMediator::getInstance(&screen);
@@ -25,6 +26,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         subjectInputDirection->update();
         subjectMouseMove->update(screen.getHandle());
         subjectKeyPress->update();
+        subjectKeyHold->update();
 
         // render a frame
         screen.refresh();

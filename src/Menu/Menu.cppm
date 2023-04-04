@@ -11,11 +11,6 @@ import Utils.Drawable;
 import Utils.Mediator;
 import Utils.TextEncode;
 
-Menu::~Menu() {
-    ObservesKeyPress::~ObservesKeyPress();
-    ObservesMouseMove::~ObservesMouseMove();
-}
-
 std::unique_ptr <easyx::Image> Menu::renderImage() const {
     auto image = std::make_unique<easyx::Image>(
         itemWidth + 4,
@@ -23,6 +18,7 @@ std::unique_ptr <easyx::Image> Menu::renderImage() const {
 
     easyx::setWorkingImage(image.get());
     easyx::setBackgroundColor(GRAY_900);
+    easyx::setTextColor(WHITE);
     easyx::clearDevice();
     easyx::setFont(24, true);
 

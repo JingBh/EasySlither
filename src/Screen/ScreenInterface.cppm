@@ -8,7 +8,8 @@ import <list>;
 import <memory>;
 import <string>;
 
-import Game;
+import Internal.GameStore;
+import Internal.UserInput;
 import Menu;
 import Screen.ScreenName;
 import ThirdParty;
@@ -33,11 +34,15 @@ public:
 
     void refresh() const;
 
-    int getWidth() const;
+    [[nodiscard]] int getWidth() const;
 
-    int getHeight() const;
+    [[nodiscard]] int getHeight() const;
 
-    windows::WindowHandle getHandle() const;
+    [[nodiscard]] int getUnscaledWidth() const;
+
+    [[nodiscard]] int getUnscaledHeight() const;
+
+    [[nodiscard]] windows::WindowHandle getHandle() const;
 };
 
 export class MainScreen : public LocationAwareDrawable {
@@ -55,18 +60,32 @@ public:
     [[nodiscard]] std::unique_ptr <easyx::Image> renderImage() const final;
 };
 
-export class GameScreen : public LocationAwareDrawable {
+export class GameScreen : public LocationAwareDrawable,
+                          public ObservesInputDirection, public ObservesMouseMove, public ObservesKeyHold {
 protected:
     const Screen &screen;
 
 private:
-    World *world;
+    GameStore *store;
+    int zoom = 12;
 
 public:
-    GameScreen(Screen &screen, World *world)
-        : screen{screen}, world{world} {}
+    GameScreen(Screen &screen)
+        : screen{screen}, store{GameStore::getInstance()} {}
+
+    ~GameScreen() override {
+        ObservesInputDirection::~ObservesInputDirection();
+        ObservesMouseMove::~ObservesMouseMove();
+        ObservesKeyHold::~ObservesKeyHold();
+    }
 
     [[nodiscard]] std::unique_ptr <easyx::Image> renderImage() const final;
+
+    void onInputDirection(int degree) final;
+
+    void onMouseMove(const windows::Point &point) final;
+
+    void onKeyHold(bool hold) final;
 };
 
 export class LoadingScreen : public LocationAwareDrawable {

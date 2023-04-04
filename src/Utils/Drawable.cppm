@@ -7,6 +7,7 @@ import ThirdParty;
 export enum class RenderAnchor {
     TOP_LEFT,
     TOP_MIDDLE,
+    TOP_RIGHT,
     CENTER
 };
 
@@ -34,6 +35,9 @@ public:
                 break;
             case TOP_MIDDLE:
                 point.x -= image->getwidth() / 2;
+                break;
+            case TOP_RIGHT:
+                point.x -= image->getwidth();
                 break;
             case CENTER:
                 point.x -= image->getwidth() / 2;

@@ -28,10 +28,10 @@ public:
             const auto leftThumbX = state.Gamepad.sThumbLX;
             const auto leftThumbY = state.Gamepad.sThumbLY;
 
-            if (leftThumbX < windows::XINPUT_LEFT_THUMB_DEADZONE &&
-                leftThumbX > -windows::XINPUT_LEFT_THUMB_DEADZONE &&
-                leftThumbY < windows::XINPUT_LEFT_THUMB_DEADZONE &&
-                leftThumbY > -windows::XINPUT_LEFT_THUMB_DEADZONE) {
+            if ((leftThumbX > windows::XINPUT_LEFT_THUMB_DEADZONE ||
+                 leftThumbX < -windows::XINPUT_LEFT_THUMB_DEADZONE) &&
+                (leftThumbY > windows::XINPUT_LEFT_THUMB_DEADZONE ||
+                 leftThumbY < -windows::XINPUT_LEFT_THUMB_DEADZONE)) {
 
                 const auto leftThumbMagnitude = std::sqrt(
                     leftThumbX * leftThumbX + leftThumbY * leftThumbY);
@@ -301,4 +301,60 @@ public:
     }
 
     virtual void onKeyPress(KeyType keyType) = 0;
+};
+
+export class SubjectKeyHold : public ISubject<bool> {
+private:
+    static inline SubjectKeyHold *instance_{nullptr};
+    static inline std::mutex mutex_;
+
+public:
+    void update() {
+        /**
+         * Only observes controller X button, SPACE key, and mouse LEFT button
+         * For snake acceleration
+         */
+        windows::XinputState state;
+        windows::createZeroMemory(&state, sizeof(windows::XinputState));
+        const auto dwResult = windows::XinputGetState(&state);
+        if (dwResult == windows::XINPUT_SUCCESS) {
+            if (state.Gamepad.wButtons & windows::XINPUT_X) {
+                return this->notify(true);
+            }
+        }
+
+        if (windows::isKeyDown(windows::VKEY_SPACE) ||
+            windows::isKeyDown(windows::VKEY_MOUSE_L)) {
+            return this->notify(true);
+        }
+
+        this->notify(false);
+    }
+
+    static SubjectKeyHold *getInstance() {
+        mutex_.lock();
+        if (instance_ == nullptr) {
+            instance_ = new SubjectKeyHold();
+        }
+        mutex_.unlock();
+
+        return instance_;
+    }
+};
+
+export class ObservesKeyHold : public IObserver<bool> {
+public:
+    ObservesKeyHold() {
+        SubjectKeyHold::getInstance()->attach(this);
+    }
+
+    ~ObservesKeyHold() override {
+        SubjectKeyHold::getInstance()->detach(this);
+    }
+
+    void update(const bool &message) final {
+        this->onKeyHold(message);
+    }
+
+    virtual void onKeyHold(bool hold) = 0;
 };

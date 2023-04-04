@@ -24,7 +24,7 @@ MainScreen::MainScreen(Screen &screen)
     this->menu = std::make_unique<Menu>();
     this->menu->emplaceItem(mediator, ScreenName::USERNAME_INPUT, "修改昵称");
     this->menu->emplaceItem(mediator, ScreenName::SINGLE_PLAYER, "单人游戏");
-    this->menu->emplaceItem(mediator, ScreenName::MULTI_PLAYER, "多人游戏");
+    // this->menu->emplaceItem(mediator, ScreenName::MULTI_PLAYER, "多人游戏");
     this->menu->emplaceItem(mediator, ScreenName::EXIT, "退出游戏");
 }
 
@@ -34,6 +34,7 @@ MainScreen::MainScreen(Screen &screen)
 
     easyx::setWorkingImage(image.get());
     easyx::setBackgroundColor(GRAY_900);
+    easyx::setTextColor(GRAY_100);
     easyx::clearDevice();
 
     renderTitle(image.get());

@@ -15,10 +15,10 @@ import Utils.Drawable;
 import Utils.Mediator;
 
 export class Menu;
-
 export class MenuItem;
 
-class Menu : public Drawable, public ObservesKeyPress, public ObservesMouseMove {
+class Menu : public Drawable,
+             public ObservesKeyPress, public ObservesMouseMove {
 protected:
     std::vector <MenuItem> items;
     std::size_t activeItem = -1;
@@ -32,7 +32,10 @@ protected:
     void onMouseMove(const windows::Point &point) override;
 
 public:
-    ~Menu() override;
+    ~Menu() override {
+        ObservesKeyPress::~ObservesKeyPress();
+        ObservesMouseMove::~ObservesMouseMove();
+    }
 
     [[nodiscard]] std::unique_ptr <easyx::Image> renderImage() const override;
 

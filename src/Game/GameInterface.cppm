@@ -31,7 +31,6 @@ public:
     const int16_t x, y;
     const uint8_t size;
 
-public:
     Food(const GameConfig config,
          const int16_t x, const int16_t y, const uint8_t size)
         : id{y * config.worldRadius * 3 + x}, x{x}, y{y}, size{size} {}
@@ -46,42 +45,84 @@ public:
 };
 
 class Snake {
+    friend class World;
+
 public:
     const int32_t id;
     const bool isBot;
     const bool isPlayer;
     const std::string username;
-
-private:
     SnakeBody head;
     std::deque <SnakeBody> bodyParts;
+    bool isBoost = false;
+    double angle, wAngle; // ang, wang
+    double bodyPartRadius;
+    HasRoundBoundBox zone{0, 0, 0}; // the area where the snake is at
+
+private:
     double fullness = 0;
+    double scale; // sc
+    double speedAngularDeltaThickness; // scang
+
+    static constexpr uint8_t headLength = 3;
+    static constexpr uint16_t stepDistance = 42;
+    static constexpr double speedAngularDeltaVelocity = 4.8; // spangdv
+    static constexpr double speedAngularBase = 1.0 / 30; // mamu
+    static constexpr double speedLinearBase = 1.48;
+    static constexpr double speedLinearBoost = 3.584;
+    static inline int32_t nextSnakeId = 0; // auto-increment id
 
 public:
     Snake(const int32_t id,
-          const double x, const double y,
+          const double x, const double y, const double angle,
           const bool isBot, const bool isPlayer,
           std::string_view username)
-        : id{id}, head{x, y}, isBot{isBot}, isPlayer{isPlayer}, username{username} {}
+        : id{id},
+          head{x, y}, angle{angle}, wAngle{angle},
+          isBot{isBot}, isPlayer{isPlayer},
+          username{username} {
+        wAngle = this->angle;
+    }
+
+    [[nodiscard]] size_t getLength() const;
+
+    [[nodiscard]] bool canBoost() const;
+
+    void grow(const double amount);
+
+    void shrink(const double amount);
+
+    void move(unsigned long long timeSpan);
+
+    void updateStatus();
+
+    void checkFoodEaten();
+
+    uint16_t getScore() const;
+
+    HasRoundBoundBox getHeadBoundBox() const;
 };
 
-class Sector : public HasRoundBoundBox {
+class Sector : public HasRectBoundBox {
+    friend class World;
+
 public:
-    const uint8_t x, y;
+    const int8_t x, y;
     const GameConfig config;
+    std::map<int32_t, Food *> foods;
 
 private:
     const uint16_t targetFoodDensity;
-    std::map<int32_t, Food *> foods;
 
 public:
     Sector(const GameConfig config,
-           const uint8_t x, const uint8_t y)
+           const int8_t x, const int8_t y)
         : x{x}, y{y},
-          HasRoundBoundBox{
-              config.sectorSize * (x + 0.5),
-              config.sectorSize * (y + 0.5),
-              (config.sectorSize * std::numbers::sqrt2 + 1) / 2
+          HasRectBoundBox{
+              static_cast<double>(config.sectorSize * x),
+              static_cast<double>(config.sectorSize * y),
+              static_cast<double>(config.sectorSize * (x + 1)),
+              static_cast<double>(config.sectorSize * (y + 1))
           },
           targetFoodDensity{
               // this is calculated based on the sector's distance to the center
@@ -110,10 +151,7 @@ protected:
 class World {
 public:
     const GameConfig config; // the config used to create this world
-
-private:
     std::vector <Sector> sectors;
-    std::map<int32_t, Food *> foods;
     std::map<int32_t, Snake *> snakes;
     Snake *player = nullptr;
 
@@ -129,13 +167,23 @@ public:
         for (size_t i = 0; i < sectorCount; i++) {
             this->sectors.emplace_back(
                 config,
-                static_cast<int8_t>(i % this->config.sectorCountEdge),
-                static_cast<int8_t>(i / this->config.sectorCountEdge)
+                static_cast<int8_t>(i % this->config.sectorCountEdge - this->config.sectorCountEdge / 2),
+                static_cast<int8_t>(i / this->config.sectorCountEdge - this->config.sectorCountEdge / 2)
             );
         }
     }
 
+    Sector *getSectorAt(const double x, const double y);
+
+    void addFood(Food *food);
+
+    void removeFood(Food *food);
+
     void addSnake(Snake *snake);
 
     void removeSnake(Snake *snake);
+
+    Snake *createSnake(bool isBot, const std::string &username, bool isPlayer = false);
+
+    void fillSnake();
 };
