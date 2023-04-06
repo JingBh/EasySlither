@@ -32,14 +32,69 @@ public:
         const auto timeSpan = getTimeSpan("server");
         auto world = this->store->getWorld();
 
-        for (auto &[snakeId, snake]: world->snakes) {
+        // snakes might be deleted during iteration
+        // make copy of the original map
+        auto snakes = world->snakes;
+        for (auto &[snakeId, snake]: snakes) {
+            if (snake->isDying) {
+                if (snake->deadTicks < -100) {
+                    snake->deadTicks = 25;
+                } else {
+                    snake->deadTicks--;
+                }
+
+                if (snake->deadTicks == 0) {
+                    snake->turnIntoFood();
+                } else if (snake->deadTicks < 0) {
+                    if (snake->isBot || snake->deadTicks < -100) {
+                        world->removeSnake(snake);
+                    }
+                }
+
+                continue;
+            }
+
             snake->move(timeSpan);
             snake->updateStatus();
             snake->checkFoodEaten();
         }
 
-        for (auto &[snakeId, snake]: world->snakes) {
-            // TODO: check snake collision
+        for (auto &[thisSnakeId, thisSnake]: world->snakes) {
+            if (thisSnake->isDying) {
+                continue;
+            }
+
+            for (auto &[otherSnakeId, otherSnake]: world->snakes) {
+                if (thisSnakeId == otherSnakeId ||
+                    otherSnake->isDying ||
+                    !thisSnake->zone.isIntersect(otherSnake->zone)) {
+                    continue;
+                }
+
+                // collision detect starts
+                auto thisHead = thisSnake->getHeadTipBoundBox();
+
+                // case 1. head to head (tip)
+                if (thisHead.isIntersect(otherSnake->getHeadTipBoundBox())) {
+                    thisSnake->isDying = true;
+                    otherSnake->isDying = true;
+                    continue;
+                }
+
+                // case 2. head to head (not tip)
+                if (thisHead.isIntersect(otherSnake->head.getBoundBox(otherSnake))) {
+                    thisSnake->isDying = true;
+                    continue;
+                }
+
+                // case 3. head to body
+                for (auto &bodyPart: otherSnake->bodyParts) {
+                    if (thisHead.isIntersect(bodyPart.getBoundBox(otherSnake))) {
+                        thisSnake->isDying = true;
+                        continue;
+                    }
+                }
+            }
         }
 
         if (getFrameCount("server") % 100 == 0) {

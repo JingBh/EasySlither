@@ -42,6 +42,8 @@ public:
 
     SnakeBody(const double x, const double y)
         : x{x}, y{y} {}
+
+    HasRoundBoundBox getBoundBox(const Snake *snake) const;
 };
 
 class Snake {
@@ -55,6 +57,8 @@ public:
     SnakeBody head;
     std::deque <SnakeBody> bodyParts;
     bool isBoost = false;
+    bool isDying = false;
+    int8_t deadTicks = -101;
     double angle, wAngle; // ang, wang
     double bodyPartRadius;
     HasRoundBoundBox zone{0, 0, 0}; // the area where the snake is at
@@ -62,11 +66,11 @@ public:
 private:
     double fullness = 0;
     double scale; // sc
-    double speedAngularDeltaThickness; // scang
+    double speedAngularCoefficientThickness; // scang
+    double speedAngularCoefficientVelocity; // spang
 
     static constexpr uint8_t headLength = 3;
     static constexpr uint16_t stepDistance = 42;
-    static constexpr double speedAngularDeltaVelocity = 4.8; // spangdv
     static constexpr double speedAngularBase = 1.0 / 30; // mamu
     static constexpr double speedLinearBase = 1.48;
     static constexpr double speedLinearBoost = 3.584;
@@ -98,9 +102,11 @@ public:
 
     void checkFoodEaten();
 
+    void turnIntoFood();
+
     uint16_t getScore() const;
 
-    HasRoundBoundBox getHeadBoundBox() const;
+    HasRoundBoundBox getHeadTipBoundBox() const;
 };
 
 class Sector : public HasRectBoundBox {

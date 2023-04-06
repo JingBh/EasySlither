@@ -89,16 +89,27 @@ import Utils.TextEncode;
             continue;
         }
 
+        // if sneak is already dead, skip rendering
+        if (snake->isDying && snake->deadTicks <= 0) {
+            continue;
+        }
+
         // start draw snake
-        easyx::setLineStyle(snake->isBoost ? 2 : 1);
-        easyx::setLineColor(snake->isBoost ? (snake->isPlayer ? CYAN_300 : EMERALD_300) : GRAY_800);
         easyx::setFillColor(snake->isPlayer ? CYAN_700 : EMERALD_700);
+        if (snake->isDying || snake->isBoost) {
+            easyx::setLineStyle(2);
+            easyx::setLineColor(snake->isPlayer ? CYAN_300 : EMERALD_300);
+        } else {
+            easyx::setLineStyle(1);
+            easyx::setLineColor(GRAY_800);
+        }
 
         // draw snake body
-        for (auto it = snake->bodyParts.rbegin(); it != snake->bodyParts.rend(); ++it) {
+        for (auto it = snake->bodyParts.rbegin(), end = snake->bodyParts.rend(); it != end; ++it) {
             SnakeBody *nextPart = &snake->head;
-            if (it + 1 != snake->bodyParts.rend()) {
-                nextPart = &*(it + 1);
+            auto itNext = std::next(it);
+            if (itNext != end) {
+                nextPart = &*itNext;
             }
 
             // interpolate a value to make the snake look smoother

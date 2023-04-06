@@ -5,6 +5,7 @@ import <cmath>;
 import <cstdint>;
 import <numbers>;
 import <limits>;
+import <vector>;
 
 import Game;
 import Internal.GameStore;
@@ -28,41 +29,63 @@ constexpr double tailStepDistance = 24;
 
 void Snake::grow(const double amount) {
     this->fullness += amount;
+
     while (this->fullness >= 1) {
         this->fullness -= 1;
         this->bodyParts.push_back(this->bodyParts.back());
     }
+
+    this->updateStatus();
 }
 
 void Snake::shrink(const double amount) {
-    if (amount > this->fullness) {
+    auto *world = GameStore::getInstance()->getWorld();
+    auto &last = this->bodyParts.back();
+
+    if (amount < 0.1) {
+        const auto minFoodSize = static_cast<int>(std::max(0.01, amount / 5) * 100);
+        const auto maxFoodSize = static_cast<int>(std::max(0.02, amount / 2) * 100);
+
+        auto *food = new Food{
+            world->config,
+            static_cast<int16_t>(last.x + randomDouble(this->bodyPartRadius)),
+            static_cast<int16_t>(last.y + randomDouble(this->bodyPartRadius)),
+            static_cast<uint8_t>(randomInt(minFoodSize, maxFoodSize))
+        };
+
+        world->addFood(food);
+    } else {
+        size_t generateFoods = std::floor(amount / 0.1);
+
+        for (size_t i = 0; i < generateFoods; i++) {
+            auto *food = new Food{
+                world->config,
+                static_cast<int16_t>(last.x + randomDouble(this->bodyPartRadius)),
+                static_cast<int16_t>(last.y + randomDouble(this->bodyPartRadius)),
+                static_cast<uint8_t>(randomInt(2, 5))
+            };
+
+            world->addFood(food);
+        }
+    }
+
+    while (amount > this->fullness) {
         this->fullness += 1;
 
         const size_t loseParts = std::ceil(amount);
         for (size_t i = 0; i < loseParts; i++) {
             if (this->getLength() > Snake::headLength) {
-                const auto &last = this->bodyParts.back();
-
-                auto *world = GameStore::getInstance()->getWorld();
-                auto *food = new Food{
-                    world->config,
-                    static_cast<int16_t>(last.x),
-                    static_cast<int16_t>(last.y),
-                    static_cast<uint8_t>(randomInt(10, 50))
-                };
-                world->addFood(food);
-
                 this->bodyParts.pop_back();
             }
         }
-    } else {
-        this->fullness -= amount;
     }
+
+    this->fullness -= amount;
+    this->updateStatus();
 }
 
 void Snake::move(unsigned long long timeSpan) {
     const double ticks = static_cast<double>(timeSpan) / 8; // tick time 8ms
-    double rotation = Snake::speedAngularBase * ticks;
 
     // check boost
     if (this->isBoost) {
@@ -75,7 +98,11 @@ void Snake::move(unsigned long long timeSpan) {
 
     // rotation
     if (this->angle != this->wAngle) {
-        double angleChangeWanted = normalizeAngle(this->wAngle - this->angle);
+        const double speedAngular = Snake::speedAngularBase *
+                                    this->speedAngularCoefficientThickness *
+                                    this->speedAngularCoefficientVelocity;
+        const double rotation = speedAngular * ticks;
+        const double angleChangeWanted = normalizeAngle(this->wAngle - this->angle);
 
         if (rotation >= std::abs(angleChangeWanted)) {
             this->angle = this->wAngle;
@@ -96,24 +123,26 @@ void Snake::move(unsigned long long timeSpan) {
         this->head.y += std::sin(this->angle) * distance;
 
         // move body parts
-        for (size_t i = 0; i < this->getLength() - 1; i++) {
-            auto &bodyPart = this->bodyParts[i];
+        for (auto &it: this->bodyParts) {
+            auto *bodyPart = &it;
 
             // const double distanceToPrevious = i < 7 ? snakePartsDistance[i] : tailStepDistance;
             const double distanceToPrevious = tailStepDistance;
-            const double angleToPrevious = std::atan2(previousPart.y - bodyPart.y, previousPart.x - bodyPart.x);
+            const double angleToPrevious = std::atan2(previousPart.y - bodyPart->y, previousPart.x - bodyPart->x);
 
-            bodyPart.x = previousPart.x - std::cos(angleToPrevious) * distanceToPrevious;
-            bodyPart.y = previousPart.y - std::sin(angleToPrevious) * distanceToPrevious;
+            bodyPart->x = previousPart.x - std::cos(angleToPrevious) * distanceToPrevious;
+            bodyPart->y = previousPart.y - std::sin(angleToPrevious) * distanceToPrevious;
 
-            previousPart = bodyPart;
+            previousPart = *bodyPart;
         }
     }
 }
 
 void Snake::updateStatus() {
     this->scale = std::fmin(6, 1 + (this->getLength() - 1) / 106);
-    this->speedAngularDeltaThickness = 0.13 + 0.87 * std::pow((7 - this->scale) / 6, 2);
+    this->speedAngularCoefficientThickness = 0.13 + 0.87 * std::pow((7 - this->scale) / 6, 2);
+    this->speedAngularCoefficientVelocity = this->isBoost ?
+                                            Snake::speedLinearBoost / Snake::speedLinearBase : 1;
     this->bodyPartRadius = 29 * 0.5 * this->scale;
 
     double centerX = this->head.x, centerY = this->head.y;
@@ -139,7 +168,7 @@ void Snake::checkFoodEaten() {
     auto *sector = world->getSectorAt(this->head.x, this->head.y);
     if (sector == nullptr) return;
 
-    auto headBoundBox = this->getHeadBoundBox();
+    auto headBoundBox = this->head.getBoundBox(this);
     headBoundBox.boundBoxRadius *= 1.5;
 
     // foods might change during iteration
@@ -150,6 +179,28 @@ void Snake::checkFoodEaten() {
         if (headBoundBox.isInclude(food->x, food->y)) {
             this->grow(food->size / 100.0);
             sector->removeFood(food);
+        }
+    }
+}
+
+void Snake::turnIntoFood() {
+    auto *world = GameStore::getInstance()->getWorld();
+    std::vector < SnakeBody * > allBodyParts{&this->head};
+
+    for (auto &bodyPart: this->bodyParts) {
+        allBodyParts.push_back(&bodyPart);
+    }
+
+    for (auto &bodyPart: allBodyParts) {
+        for (size_t i = 0; i < 10; i++) {
+            auto *food = new Food{
+                GameStore::getInstance()->getWorld()->config,
+                static_cast<int16_t>(bodyPart->x + randomDouble(this->bodyPartRadius)),
+                static_cast<int16_t>(bodyPart->y + randomDouble(this->bodyPartRadius)),
+                static_cast<uint8_t>(randomInt(5, 15))
+            };
+
+            world->addFood(food);
         }
     }
 }
@@ -169,10 +220,20 @@ uint16_t Snake::getScore() const {
     ), 0), std::numeric_limits<uint16_t>::max()));
 }
 
-HasRoundBoundBox Snake::getHeadBoundBox() const {
+HasRoundBoundBox Snake::getHeadTipBoundBox() const {
+    auto boundBox = this->head.getBoundBox(this);
+
+    boundBox.boundBoxX += std::cos(this->angle) * this->bodyPartRadius / 2;
+    boundBox.boundBoxY += std::sin(this->angle) * this->bodyPartRadius / 2;
+    boundBox.boundBoxRadius = this->bodyPartRadius / 2;
+
+    return boundBox;
+}
+
+HasRoundBoundBox SnakeBody::getBoundBox(const Snake *snake) const {
     return HasRoundBoundBox{
-        this->head.x,
-        this->head.y,
-        this->bodyPartRadius
+        this->x,
+        this->y,
+        snake->bodyPartRadius
     };
 }

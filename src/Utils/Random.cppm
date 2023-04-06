@@ -21,6 +21,10 @@ export double randomDouble(const double min, const double max) {
     return doubleDis(gen);
 }
 
+export double randomDouble(const double radius) {
+    return randomDouble(-radius, radius);
+}
+
 export double randomDouble() {
     return randomDouble(0, 1);
 }
