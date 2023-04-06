@@ -39,7 +39,7 @@ public:
                 const auto normalizedLX = leftThumbX / leftThumbMagnitude;
                 const auto normalizedLY = leftThumbY / leftThumbMagnitude;
 
-                auto theta = std::atan2(normalizedLY, normalizedLX);
+                auto theta = std::atan2(normalizedLX, normalizedLY);
                 if (theta < 0.0) {
                     theta += 2 * std::numbers::pi;
                 }

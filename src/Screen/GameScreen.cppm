@@ -217,7 +217,7 @@ void GameScreen::onInputDirection(int degree) {
     auto *world = this->store->getWorld();
 
     if (world != nullptr) {
-        auto angle = -degree / 180.0 * std::numbers::pi;
+        auto angle = (degree - 90) / 180.0 * std::numbers::pi;
 
         world->player->wAngle = angle;
     }
