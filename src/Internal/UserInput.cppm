@@ -211,16 +211,16 @@ private:
 
 public:
     void update() {
-        easyx::Message message;
+        easyx::Message msg;
 
-        while (easyx::peekMessage(&message)) {
-            switch (message.message) {
+        while (easyx::peekMessage(&msg, easyx::MESSAGE_TYPE_MOUSE | easyx::MESSAGE_TYPE_KEY)) {
+            switch (msg.message) {
                 case easyx::MESSAGE_LBUTTONDOWN:
                     return this->notifyAndFlush(KeyType::CONFIRM);
                 case easyx::MESSAGE_RBUTTONDOWN:
                     return this->notifyAndFlush(KeyType::INFO);
                 case easyx::MESSAGE_KEYDOWN:
-                    switch (message.vkcode) {
+                    switch (msg.vkcode) {
                         case windows::VKEY_TAB:
                             return this->notifyAndFlush(KeyType::SWITCH);
                         case windows::VKEY_SPACE:
@@ -265,7 +265,7 @@ public:
     }
 
     void notifyAndFlush(const KeyType event) {
-        easyx::flushMessage();
+        easyx::flushMessage(easyx::MESSAGE_TYPE_MOUSE | easyx::MESSAGE_TYPE_KEY);
         this->notify(event);
     }
 
@@ -357,4 +357,46 @@ public:
     }
 
     virtual void onKeyHold(bool hold) = 0;
+};
+
+export class SubjectTextInput : public ISubject<char> {
+private:
+    static inline SubjectTextInput *instance_{nullptr};
+    static inline std::mutex mutex_;
+
+public:
+    void update() {
+        easyx::Message msg;
+
+        while (easyx::peekMessage(&msg, easyx::MESSAGE_TYPE_CHAR)) {
+            this->notify(msg.ch);
+        }
+    }
+
+    static SubjectTextInput *getInstance() {
+        mutex_.lock();
+        if (instance_ == nullptr) {
+            instance_ = new SubjectTextInput();
+        }
+        mutex_.unlock();
+
+        return instance_;
+    }
+};
+
+export class ObservesTextInput : public IObserver<char> {
+public:
+    ObservesTextInput() {
+        SubjectTextInput::getInstance()->attach(this);
+    }
+
+    ~ObservesTextInput() override {
+        SubjectTextInput::getInstance()->detach(this);
+    }
+
+    void update(const char &message) final {
+        this->onTextInput(message);
+    }
+
+    virtual void onTextInput(char character) = 0;
 };

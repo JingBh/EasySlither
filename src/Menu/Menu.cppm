@@ -1,6 +1,7 @@
 export module Menu.Menu;
 
 import <memory>;
+import <variant>;
 
 import Menu;
 import Internal.UserInput;
@@ -24,13 +25,14 @@ std::unique_ptr <easyx::Image> Menu::renderImage() const {
 
     for (std::size_t i = 0; i < items.size(); i++) {
         const auto item = items[i];
+        const bool isButton = std::holds_alternative<MenuItem>(item);
 
         if (activeItem == i) {
             easyx::setLineStyle(2); // +4 in size and +2 in position are the margins for the border here
-            easyx::setLineColor(GRAY_100);
-            easyx::setFillColor(GREEN_700);
+            easyx::setLineColor(isButton ? GRAY_100 : GREEN_700);
+            easyx::setFillColor(isButton ? GREEN_700 : ZINC_700);
         } else {
-            easyx::setFillColor(GREEN_600);
+            easyx::setFillColor(isButton ? GREEN_600 : ZINC_700);
         }
 
         windows::Rect location{
@@ -42,13 +44,19 @@ std::unique_ptr <easyx::Image> Menu::renderImage() const {
         easyx::drawRoundRect(location, itemHeight / 2, activeItem == i);
 
         if (activeItem == i) {
-            easyx::setBackgroundColor(GREEN_700);
+            easyx::setBackgroundColor(isButton ? GREEN_700 : ZINC_700);
         } else {
-            easyx::setBackgroundColor(GREEN_600);
+            easyx::setBackgroundColor(isButton ? GREEN_600 : ZINC_700);
         }
 
-        easyx::drawText(encode(item.text), &location,
-                        easyx::TEXT_CENTER | easyx::TEXT_VCENTER | easyx::TEXT_SINGLELINE);
+        if (std::holds_alternative<MenuItem>(item)) {
+            easyx::drawText(encode(std::get<MenuItem>(item).text), &location,
+                            easyx::TEXT_CENTER | easyx::TEXT_VCENTER | easyx::TEXT_SINGLELINE);
+        } else if (std::holds_alternative<TextInput>(item)) {
+            easyx::drawText(encode(*std::get<TextInput>(item).value), &location,
+                            easyx::TEXT_CENTER | easyx::TEXT_VCENTER | easyx::TEXT_SINGLELINE |
+                            easyx::TEXT_EDITCONTROL);
+        }
 
         easyx::setBackgroundColor(GRAY_900);
     }
@@ -58,12 +66,14 @@ std::unique_ptr <easyx::Image> Menu::renderImage() const {
     return image;
 }
 
-void Menu::addItem(MenuItem &item) {
+void Menu::emplaceItem(IMediator <ScreenName> *mediator, const ScreenName event, const std::string text) {
+    const IMenuItem item{std::in_place_type < MenuItem > , mediator, event, text};
     items.push_back(item);
 }
 
-void Menu::emplaceItem(IMediator <ScreenName> *mediator, const ScreenName event, const std::string text) {
-    items.emplace_back(mediator, event, text);
+void Menu::emplaceItem(std::string *value, const size_t maxLength) {
+    const IMenuItem item{std::in_place_type < TextInput > , value, maxLength};
+    items.push_back(item);
 }
 
 void Menu::onKeyPress(const KeyType key) {
@@ -85,7 +95,10 @@ void Menu::onKeyPress(const KeyType key) {
             break;
         case KeyType::CONFIRM:
             if (activeItem >= 0 && activeItem < items.size()) {
-                items[activeItem].action();
+                const auto item = items[activeItem];
+                if (std::holds_alternative<MenuItem>(item)) {
+                    std::get<MenuItem>(item).action();
+                }
             }
             break;
         default:

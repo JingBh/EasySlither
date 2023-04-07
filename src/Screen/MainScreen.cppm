@@ -3,6 +3,7 @@ export module Screen.MainScreen;
 import <memory>;
 
 import Menu;
+import Internal.GameStore;
 import Internal.ScreenMediator;
 import Screen;
 import Screen.ScreenName;
@@ -22,9 +23,9 @@ MainScreen::MainScreen(Screen &screen)
     auto mediator = ScreenMediator::getInstance(&screen);
 
     this->menu = std::make_unique<Menu>();
-    this->menu->emplaceItem(mediator, ScreenName::USERNAME_INPUT, "修改昵称");
+    this->menu->emplaceItem(&GameStore::getInstance()->username, 32);
     this->menu->emplaceItem(mediator, ScreenName::SINGLE_PLAYER, "单人游戏");
-    // this->menu->emplaceItem(mediator, ScreenName::MULTI_PLAYER, "多人游戏");
+    this->menu->emplaceItem(mediator, ScreenName::MULTI_PLAYER, "多人游戏");
     this->menu->emplaceItem(mediator, ScreenName::EXIT, "退出游戏");
 }
 

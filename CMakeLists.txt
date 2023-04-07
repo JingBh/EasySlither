@@ -43,6 +43,7 @@ set(SOURCE_FILES_CLIENT
         src/Menu/Menu.cppm
         src/Menu/MenuInterface.cppm
         src/Menu/MenuItem.cppm
+        src/Menu/TextInput.cppm
         src/Screen/GameScreen.cppm
         src/Screen/LoadingScreen.cppm
         src/Screen/MainScreen.cppm
