@@ -211,16 +211,16 @@ private:
 
 public:
     void update() {
-        easyx::Message message;
+        easyx::Message msg;
 
-        while (easyx::peekMessage(&message)) {
-            switch (message.message) {
+        while (easyx::peekMessage(&msg, easyx::MESSAGE_TYPE_MOUSE | easyx::MESSAGE_TYPE_KEY)) {
+            switch (msg.message) {
                 case easyx::MESSAGE_LBUTTONDOWN:
                     return this->notifyAndFlush(KeyType::CONFIRM);
                 case easyx::MESSAGE_RBUTTONDOWN:
                     return this->notifyAndFlush(KeyType::INFO);
                 case easyx::MESSAGE_KEYDOWN:
-                    switch (message.vkcode) {
+                    switch (msg.vkcode) {
                         case windows::VKEY_TAB:
                             return this->notifyAndFlush(KeyType::SWITCH);
                         case windows::VKEY_SPACE:
@@ -239,8 +239,6 @@ public:
                         default:
                             break;
                     }
-                default:
-                    break;
             }
         }
 
@@ -265,7 +263,7 @@ public:
     }
 
     void notifyAndFlush(const KeyType event) {
-        easyx::flushMessage();
+        easyx::flushMessage(easyx::MESSAGE_TYPE_MOUSE | easyx::MESSAGE_TYPE_KEY);
         this->notify(event);
     }
 

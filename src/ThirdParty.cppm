@@ -95,7 +95,7 @@ export namespace windows {
     }
 
     bool isKeyDown(const int vKey) {
-        return static_cast<bool>(GetKeyState(vKey) & 0x8000);
+        return static_cast<bool>(GetAsyncKeyState(vKey) & 0x8000);
     }
 
     auto XinputGetState(XinputState *state) {
@@ -130,6 +130,11 @@ export namespace easyx {
     constexpr auto TEXT_VCENTER = DT_VCENTER;
     constexpr auto TEXT_WORDBREAK = DT_WORDBREAK;
     constexpr auto TEXT_WORD_ELLIPSIS = DT_WORD_ELLIPSIS;
+
+    constexpr auto MESSAGE_TYPE_MOUSE = EX_MOUSE;
+    constexpr auto MESSAGE_TYPE_KEY = EX_KEY;
+    constexpr auto MESSAGE_TYPE_CHAR = EX_CHAR;
+    constexpr auto MESSAGE_TYPE_WINDOW = EX_WINDOW;
 
     constexpr auto MESSAGE_MOUSEMOVE = WM_MOUSEMOVE;
     constexpr auto MESSAGE_MOUSEWHEEL = WM_MOUSEWHEEL;
@@ -365,12 +370,12 @@ export namespace easyx {
      * 消息处理相关函数
      */
 
-    bool peekMessage(ExMessage *msg) {
-        return peekmessage(msg);
+    bool peekMessage(ExMessage *msg, BYTE filter = -1) {
+        return peekmessage(msg, filter);
     }
 
-    void flushMessage() {
-        flushmessage();
+    void flushMessage(BYTE filter = -1) {
+        flushmessage(filter);
     }
 
     /**
