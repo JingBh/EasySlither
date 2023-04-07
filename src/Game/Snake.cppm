@@ -139,7 +139,7 @@ void Snake::move(unsigned long long timeSpan) {
 }
 
 void Snake::updateStatus() {
-    this->scale = std::fmin(6, 1 + (this->getLength() - 1) / 106);
+    this->scale = std::fmin(6, 1 + (static_cast<double>(this->getLength() - 1)) / 106);
     this->speedAngularCoefficientThickness = 0.13 + 0.87 * std::pow((7 - this->scale) / 6, 2);
     this->speedAngularCoefficientVelocity = this->isBoost ?
                                             Snake::speedLinearBoost / Snake::speedLinearBase : 1;

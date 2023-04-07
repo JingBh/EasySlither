@@ -81,6 +81,7 @@ public:
 
     [[nodiscard]] std::unique_ptr <easyx::Image> renderImage() const final;
 
+protected:
     void onInputDirection(int degree) final;
 
     void onMouseMove(const windows::Point &point) final;
