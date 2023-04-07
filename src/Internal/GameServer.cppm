@@ -5,6 +5,7 @@ import <cstdio>;
 import <list>;
 import <memory>;
 import <mutex>;
+import <string>;
 import <thread>;
 
 import Game;
@@ -164,7 +165,7 @@ private:
 #ifdef EASYSLITHER_CLIENT // if is single-player
         // add current player
 
-        auto &username = this->store->username;
+        auto username = this->store->getUsername();
         auto *snake = world->createSnake(false, username, true);
 
         world->addSnake(snake);

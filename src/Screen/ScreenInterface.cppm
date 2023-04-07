@@ -48,16 +48,26 @@ public:
 export class MainScreen : public LocationAwareDrawable {
 protected:
     const Screen &screen;
-
-private:
-    // the menu object stored in a pointer
-    // as a workaround for renderImage is const
     std::unique_ptr <Menu> menu;
 
 public:
     explicit MainScreen(Screen &screen);
 
     [[nodiscard]] std::unique_ptr <easyx::Image> renderImage() const final;
+
+protected:
+    MainScreen(Screen &screen, std::unique_ptr <Menu> menu)
+        : screen{screen}, menu{std::move(menu)} {}
+};
+
+export class MainScreenSinglePlayer : public MainScreen {
+public:
+    explicit MainScreenSinglePlayer(Screen &screen);
+};
+
+export class MainScreenMultiPlayer : public MainScreen {
+public:
+    explicit MainScreenMultiPlayer(Screen &screen);
 };
 
 export class GameScreen : public LocationAwareDrawable,

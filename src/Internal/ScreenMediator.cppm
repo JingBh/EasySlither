@@ -35,41 +35,48 @@ public:
             enum ScreenName;
 
             case MAIN:
-#ifdef DEBUG
-                std::cout << "Screen switched: Main\n";
-#endif //DEBUG
                 this->useScreen(std::make_unique<MainScreen>(screen));
                 break;
 
-            case SINGLE_PLAYER:
+            case SINGLE_PLAYER_MAIN:
+                this->useScreen(std::make_unique<MainScreenSinglePlayer>(screen));
+                break;
+
+            case SINGLE_PLAYER_START:
                 GameServer::start();
-#ifdef DEBUG
-                std::cout << "Screen switched: Game\n";
-#endif //DEBUG
                 this->useScreen(std::make_unique<GameScreen>(screen));
                 break;
 
-            case MULTI_PLAYER:
-#ifdef DEBUG
-                std::cout << "Screen switched: Multi player\n";
-#endif //DEBUG
-                // TODO: Server selection
-#ifdef DEBUG
-                std::cout << "Screen switched: Loading\n";
-#endif //DEBUG
+            case SINGLE_PLAYER_RANK:
+                // TODO: Show rank screen
+                break;
+
+            case SINGLE_PLAYER_END:
+                GameServer::stop();
+                // TODO: Show end screen
+                break;
+
+            case MULTI_PLAYER_MAIN:
+                this->useScreen(std::make_unique<MainScreenMultiPlayer>(screen));
+                break;
+
+            case MULTI_PLAYER_START:
                 this->useScreen(std::make_unique<LoadingScreen>(screen, "正在连接到服务器..."));
                 // TODO: connect to server
-#ifdef DEBUG
-                std::cout << "Screen switched: Game\n";
-#endif //DEBUG
                 // this->useScreen(std::make_unique<GameScreen>(screen));
                 break;
 
+            case MULTI_PLAYER_END:
+                GameServer::stop();
+                // TODO: Show end screen
+                break;
+
             case USERNAME_INPUT:
-#ifdef DEBUG
-                std::cout << "Popup activated: Username input\n";
-#endif //DEBUG
                 UsernameInput()();
+                break;
+
+            case SERVER_INPUT:
+                // TODO: Server selection
                 break;
 
             case EXIT:

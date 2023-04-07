@@ -17,10 +17,11 @@ public:
     void operator()() {
         std::string username{32, '\0'};
 
-        easyx::inputBox(username, encode("输入昵称..."));
+        bool hasInput = easyx::inputBox(username, encode("输入昵称..."));
 
-        if (!username.empty()) {
-            store->username = username;
+        const char *realStr = username.data();
+        if (hasInput && realStr[0]) {
+            this->store->setUsername(realStr);
         }
     }
 };

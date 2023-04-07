@@ -28,6 +28,7 @@ set(SOURCE_FILES_UNIVERSAL
         src/Network/ConnectionType.cppm
         src/Utils/Angle.cppm
         src/Utils/BoundBox.cppm
+        src/Utils/Filesystem.cppm
         src/Utils/Frames.cppm
         src/Utils/Mediator.cppm
         src/Utils/Names.cppm
