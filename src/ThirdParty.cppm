@@ -306,6 +306,10 @@ export namespace easyx {
                       borderRadius, line, fill);
     }
 
+    void floodFill(const int x, const int y, COLORREF color, const bool border = true) {
+        floodfill(x, y, color, border ? FLOODFILLBORDER : FLOODFILLSURFACE);
+    }
+
     void setROP2(const int mode) {
         setrop2(mode);
     }

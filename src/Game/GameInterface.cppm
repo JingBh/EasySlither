@@ -154,7 +154,7 @@ protected:
     [[nodiscard]] uint16_t distanceToCenter() const;
 };
 
-class World {
+class World : public HasRoundBoundBox {
 public:
     const GameConfig config; // the config used to create this world
     std::vector <Sector> sectors;
@@ -163,20 +163,8 @@ public:
 
 public:
     explicit World(const GameConfig config)
-        : config{config} {
-        /**
-         * sectors initialization
-         */
-        const auto sectorCount = static_cast<size_t>(std::pow(this->config.sectorCountEdge, 2));
-        this->sectors.reserve(sectorCount);
-
-        for (size_t i = 0; i < sectorCount; i++) {
-            this->sectors.emplace_back(
-                config,
-                static_cast<int8_t>(i % this->config.sectorCountEdge - this->config.sectorCountEdge / 2),
-                static_cast<int8_t>(i / this->config.sectorCountEdge - this->config.sectorCountEdge / 2)
-            );
-        }
+        : config{config}, HasRoundBoundBox(0, 0, config.worldRadius) {
+        this->initSectors();
     }
 
     Sector *getSectorAt(const double x, const double y);
@@ -192,4 +180,7 @@ public:
     Snake *createSnake(bool isBot, const std::string &username, bool isPlayer = false);
 
     void fillSnake();
+
+private:
+    void initSectors();
 };

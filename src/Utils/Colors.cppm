@@ -1,3 +1,6 @@
+/**
+ * Colors from Tailwind CSS are used
+ */
 export module Utils.Colors;
 
 import ThirdParty;
@@ -9,6 +12,9 @@ export const auto GRAY_100 = easyx::fromRGB(243, 244, 246);
 export const auto GRAY_500 = easyx::fromRGB(107, 114, 128);
 export const auto GRAY_800 = easyx::fromRGB(31, 41, 55);
 export const auto GRAY_900 = easyx::fromRGB(17, 24, 39);
+
+export const auto RED_700 = easyx::fromRGB(185, 28, 28);
+export const auto RED_950 = easyx::fromRGB(69, 10, 10);
 
 export const auto EMBER_500 = easyx::fromRGB(245, 158, 11);
 export const auto EMBER_700 = easyx::fromRGB(180, 83, 9);

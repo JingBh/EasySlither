@@ -48,13 +48,16 @@ import Utils.TextEncode;
     auto *player = world->player;
     const auto headX = player->head.x;
     const auto headY = player->head.y;
-    HasRectBoundBox viewport = {
+    HasRectBoundBox viewport{
         headX - static_cast<double>(width) / 2,
         headY - static_cast<double>(height) / 2,
         headX + static_cast<double>(width) / 2,
         headY + static_cast<double>(height) / 2
     };
 
+    /**
+     * Draw sectors
+     */
     easyx::setLineStyle(1);
     easyx::setLineColor(BLACK);
     for (auto &sector: world->sectors) {
@@ -83,6 +86,9 @@ import Utils.TextEncode;
         }
     }
 
+    /**
+     * Draw snakes
+     */
     for (auto &[snakeId, snake]: world->snakes) {
         // check if snake is in sight
         if (!viewport.isIntersect(snake->zone)) {
@@ -189,31 +195,66 @@ import Utils.TextEncode;
         }
     }
 
-    easyx::setFont(16);
-    easyx::setBackgroundStyle(false);
-    easyx::setTextColor(GRAY_500);
+    /**
+     * Draw world border
+     */
+    {
+        easyx::setLineStyle(3);
+        easyx::setLineColor(RED_700);
+        easyx::setFillColor(RED_950);
+        easyx::drawCircle(
+            static_cast<int>(-viewport.boundBoxX1),
+            static_cast<int>(-viewport.boundBoxY1),
+            static_cast<int>(world->config.worldRadius),
+            true, false);
 
-    windows::Rect location{8,
-                           height - 24,
-                           width,
-                           height - 8};
-    easyx::drawText(encode("当前分数：" + std::to_string(player->getScore())),
-                    &location,
-                    easyx::TEXT_LEFT | easyx::TEXT_VCENTER);
+        std::array<std::array<double, 2>, 4> viewportCorners{
+            std::array < double, 2 > {viewport.boundBoxX1 + 1, viewport.boundBoxY1 + 1},
+            std::array < double, 2 > {viewport.boundBoxX2 - 1, viewport.boundBoxY1 + 1},
+            std::array < double, 2 > {viewport.boundBoxX2 - 1, viewport.boundBoxY2 - 1},
+            std::array < double, 2 > {viewport.boundBoxX1 + 1, viewport.boundBoxY2 - 1}
+        };
+        for (auto &corner: viewportCorners) {
+            if (!world->isInclude(corner[0], corner[1])) {
+                easyx::floodFill(
+                    std::floor(corner[0] - viewport.boundBoxX1),
+                    std::floor(corner[1] - viewport.boundBoxY1),
+                    RED_700);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Write score and debug info
+     */
+    if (player != nullptr && !player->isDying) {
+        easyx::setFont(16);
+        easyx::setBackgroundStyle(false);
+        easyx::setTextColor(GRAY_500);
+
+        windows::Rect location{8,
+                               height - 24,
+                               width,
+                               height - 8};
+        easyx::drawText(encode("当前分数：" + std::to_string(player->getScore())),
+                        &location,
+                        easyx::TEXT_LEFT | easyx::TEXT_VCENTER);
 
 #ifdef DEBUG
-    location = {0,
-                height - 24,
-                width - 8,
-                height - 8};
-    easyx::drawText(encode("X=" + std::to_string(player->head.x) +
-                           ", Y=" + std::to_string(player->head.y) +
-                           ", angle=" + std::to_string(player->angle / std::numbers::pi) + "π" +
-                           ", wAngle=" + std::to_string(player->wAngle / std::numbers::pi) + "π" +
-                           ", isBoost=" + std::to_string(player->isBoost)),
-                    &location,
-                    easyx::TEXT_RIGHT | easyx::TEXT_VCENTER);
+        location = {0,
+                    height - 24,
+                    width - 8,
+                    height - 8};
+        easyx::drawText(encode("X=" + std::to_string(player->head.x) +
+                               ", Y=" + std::to_string(player->head.y) +
+                               ", angle=" + std::to_string(player->angle / std::numbers::pi) + "π" +
+                               ", wAngle=" + std::to_string(player->wAngle / std::numbers::pi) + "π" +
+                               ", isBoost=" + std::to_string(player->isBoost)),
+                        &location,
+                        easyx::TEXT_RIGHT | easyx::TEXT_VCENTER);
 #endif //DEBUG
+    }
 
     this->store->worldMutex.unlock();
 

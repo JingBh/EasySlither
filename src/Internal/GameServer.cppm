@@ -59,20 +59,29 @@ public:
             snake->checkFoodEaten();
         }
 
+        /**
+         * collision detect
+         */
         for (auto &[thisSnakeId, thisSnake]: world->snakes) {
             if (thisSnake->isDying) {
                 continue;
             }
 
+            auto thisHead = thisSnake->getHeadTipBoundBox();
+
+            // detect collision with border
+            if (!world->isIntersect(thisHead)) {
+                thisSnake->isDying = true;
+                continue;
+            }
+
+            // detect collision with other snakes
             for (auto &[otherSnakeId, otherSnake]: world->snakes) {
                 if (thisSnakeId == otherSnakeId ||
                     otherSnake->isDying ||
                     !thisSnake->zone.isIntersect(otherSnake->zone)) {
                     continue;
                 }
-
-                // collision detect starts
-                auto thisHead = thisSnake->getHeadTipBoundBox();
 
                 // case 1. head to head (tip)
                 if (thisHead.isIntersect(otherSnake->getHeadTipBoundBox())) {

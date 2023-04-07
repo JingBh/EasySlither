@@ -56,13 +56,6 @@ Snake *World::createSnake(bool isBot, const std::string &username, bool isPlayer
     auto x = std::cos(distanceAngle) * distance;
     auto y = std::sin(distanceAngle) * distance;
 
-#ifdef DEBUG
-    if (isPlayer) {
-        x = 0;
-        y = 0;
-    }
-#endif //DEBUG
-
     auto angle = randomDouble(0, std::numbers::pi * 2); // the angle to spawn the body to
     auto snake = new Snake{
         Snake::nextSnakeId++,
@@ -92,5 +85,22 @@ void World::fillSnake() {
 
     for (size_t i = 0; i < snakeNeeded; i++) {
         this->addSnake(this->createSnake(true, "电脑玩家" + getNextName()));
+    }
+}
+
+void World::initSectors() {
+    const auto sectorCount = static_cast<size_t>(std::pow(this->config.sectorCountEdge, 2));
+    this->sectors.reserve(sectorCount);
+
+    for (size_t i = 0; i < sectorCount; i++) {
+        Sector sector{
+            config,
+            static_cast<int8_t>(i % this->config.sectorCountEdge - this->config.sectorCountEdge / 2),
+            static_cast<int8_t>(i / this->config.sectorCountEdge - this->config.sectorCountEdge / 2)
+        };
+
+        if (sector.isIntersect(*this)) {
+            this->sectors.push_back(sector);
+        }
     }
 }
