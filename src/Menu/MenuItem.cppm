@@ -1,7 +1,8 @@
 export module Menu.MenuItem;
 
+import Internal.ScreenMediator;
 import Menu;
 
 void MenuItem::action() const {
-    this->_mediator->notify(this->event);
+    ScreenMediator::getInstance()->notify(this->event);
 }

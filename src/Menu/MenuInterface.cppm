@@ -12,7 +12,6 @@ import Internal.UserInput;
 import Screen.ScreenName;
 import ThirdParty;
 import Utils.Drawable;
-import Utils.Mediator;
 
 export class Menu;
 export class MenuItem;
@@ -41,10 +40,10 @@ public:
 
     void addItem(MenuItem &item);
 
-    void emplaceItem(IMediator <ScreenName> *mediator, const ScreenName event, const std::string text);
+    void emplaceItem(const ScreenName event, const std::string text);
 };
 
-class MenuItem : Mediatable<ScreenName> {
+class MenuItem {
 public:
     const std::string text;
 
@@ -52,8 +51,8 @@ protected:
     const ScreenName event;
 
 public:
-    MenuItem(IMediator <ScreenName> *mediator, const ScreenName event, const std::string text)
-        : event{event}, text{text}, Mediatable(mediator) {}
+    MenuItem(const ScreenName event, const std::string text)
+        : event{event}, text{text} {}
 
     void action() const;
 };

@@ -395,12 +395,14 @@ export namespace easyx {
     }
 }
 
+/**
+ * For the record,
+ * the next two functions is taken from
+ * https://blog.csdn.net/u012234115/article/details/83186386
+ * in order to implement Chinese display.
+ */
+
 export std::string Utf8ToGbk(const char *src_str) {
-    /**
-     * For the record,
-     * this function is taken from https://blog.csdn.net/u012234115/article/details/83186386
-     * in order to implement Chinese display.
-     */
     int len = MultiByteToWideChar(CP_UTF8, 0, src_str, -1, nullptr, 0);
     auto *wszGBK = new wchar_t[len + 1];
     memset(wszGBK, 0, len * 2 + 2);
@@ -412,5 +414,20 @@ export std::string Utf8ToGbk(const char *src_str) {
     std::string strTemp(szGBK);
     delete[] wszGBK;
     delete[] szGBK;
+    return strTemp;
+}
+
+export std::string GbkToUtf8(const char *src_str) {
+    int len = MultiByteToWideChar(CP_ACP, 0, src_str, -1, nullptr, 0);
+    auto *wstr = new wchar_t[len + 1];
+    memset(wstr, 0, len + 1);
+    MultiByteToWideChar(CP_ACP, 0, src_str, -1, wstr, len);
+    len = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, nullptr, 0, nullptr, nullptr);
+    char *str = new char[len + 1];
+    memset(str, 0, len + 1);
+    WideCharToMultiByte(CP_UTF8, 0, wstr, -1, str, len, nullptr, nullptr);
+    std::string strTemp = str;
+    delete[] wstr;
+    delete[] str;
     return strTemp;
 }

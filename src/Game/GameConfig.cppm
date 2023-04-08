@@ -1,4 +1,4 @@
-export module Game.Config;
+export module Game.GameConfig;
 
 import <cstdint>;
 
@@ -12,5 +12,5 @@ export struct GameConfig {
     uint16_t sectorSize = 300;
     uint8_t sectorCountEdge = static_cast<uint8_t>(2 * worldRadius / sectorSize);
     uint16_t foodDensity = 10;
-    uint16_t targetSnakeCount = 100;
+    uint16_t targetSnakeCount = 200;
 };

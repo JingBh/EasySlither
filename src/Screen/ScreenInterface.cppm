@@ -4,6 +4,7 @@
 
 export module Screen;
 
+import <cstdint>;
 import <list>;
 import <memory>;
 import <string>;
@@ -70,6 +71,20 @@ public:
     explicit MainScreenMultiPlayer(Screen &screen);
 };
 
+export class LoadingScreen : public LocationAwareDrawable {
+protected:
+    const Screen &screen;
+
+private:
+    std::string title;
+
+public:
+    LoadingScreen(const Screen &screen, std::string title)
+        : screen{screen}, title{title} {}
+
+    [[nodiscard]] std::unique_ptr <easyx::Image> renderImage() const final;
+};
+
 export class GameScreen : public LocationAwareDrawable,
                           public ObservesInputDirection, public ObservesMouseMove, public ObservesKeyHold {
 protected:
@@ -77,7 +92,7 @@ protected:
 
 private:
     GameStore *store;
-    int zoom = 12;
+    // int zoom = 12;
 
 public:
     GameScreen(Screen &screen)
@@ -99,16 +114,30 @@ protected:
     void onKeyHold(bool hold) final;
 };
 
-export class LoadingScreen : public LocationAwareDrawable {
+export class GameOverScreen : public LocationAwareDrawable {
 protected:
     const Screen &screen;
+    std::unique_ptr <Menu> menu;
 
 private:
-    std::string title;
+    GameStore *store;
 
 public:
-    LoadingScreen(const Screen &screen, std::string title)
-        : screen{screen}, title{title} {}
+    explicit GameOverScreen(Screen &screen);
+
+    [[nodiscard]] std::unique_ptr <easyx::Image> renderImage() const final;
+};
+
+export class RankScreen : public LocationAwareDrawable {
+protected:
+    const Screen &screen;
+    std::unique_ptr <Menu> menu;
+
+private:
+    GameStore *store;
+
+public:
+    explicit RankScreen(Screen &screen);
 
     [[nodiscard]] std::unique_ptr <easyx::Image> renderImage() const final;
 };

@@ -8,9 +8,11 @@ import <mutex>;
 import <string>;
 
 import Game;
+import Internal.ScreenMediator;
 import Internal.UserInput;
 import Screen;
 import Screen.ScaleFactor;
+import Screen.ScreenName;
 import ThirdParty;
 import Utils.BoundBox;
 import Utils.Colors;
@@ -46,6 +48,10 @@ import Utils.TextEncode;
     // easyx::setAspectRatio(scale, -scale);
 
     auto *player = world->player;
+    if (player->isDying && player->deadTicks < -50) {
+        ScreenMediator::getInstance()->notify(ScreenName::GAME_OVER);
+    }
+
     const auto headX = player->head.x;
     const auto headY = player->head.y;
     HasRectBoundBox viewport{
@@ -268,7 +274,7 @@ import Utils.TextEncode;
 void GameScreen::onInputDirection(int degree) {
     auto *world = this->store->getWorld();
 
-    if (world != nullptr) {
+    if (world != nullptr && world->player != nullptr) {
         auto angle = (degree - 90) / 180.0 * std::numbers::pi;
 
         world->player->wAngle = angle;
@@ -278,7 +284,7 @@ void GameScreen::onInputDirection(int degree) {
 void GameScreen::onMouseMove(const windows::Point &point) {
     auto *world = this->store->getWorld();
 
-    if (world != nullptr) {
+    if (world != nullptr && world->player != nullptr) {
         const auto width = this->screen.getWidth();
         const auto height = this->screen.getHeight();
 
@@ -292,7 +298,7 @@ void GameScreen::onMouseMove(const windows::Point &point) {
 void GameScreen::onKeyHold(bool hold) {
     auto *world = this->store->getWorld();
 
-    if (world != nullptr) {
+    if (world != nullptr && world->player != nullptr) {
         world->player->isBoost = hold && world->player->canBoost();
     }
 }

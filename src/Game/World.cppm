@@ -4,8 +4,10 @@ import <cmath>;
 import <numbers>;
 import <string>;
 
+import Internal.GameStore;
 import Game;
 import Utils.Angle;
+import Utils.BoundBox;
 import Utils.Names;
 import Utils.Random;
 
@@ -40,6 +42,7 @@ void World::removeFood(Food *food) {
 
 void World::addSnake(Snake *snake) {
     this->snakes[snake->id] = snake;
+
     if (snake->isPlayer) {
         this->player = snake;
     }
@@ -47,6 +50,11 @@ void World::addSnake(Snake *snake) {
 
 void World::removeSnake(Snake *snake) {
     this->snakes.erase(snake->id);
+
+    if (snake->isPlayer) {
+        this->player = nullptr;
+    }
+
     delete snake;
 }
 
@@ -55,6 +63,14 @@ Snake *World::createSnake(bool isBot, const std::string &username, bool isPlayer
     const auto distance = this->config.worldRadius * randomDouble(0.05, 0.5);
     auto x = std::cos(distanceAngle) * distance;
     auto y = std::sin(distanceAngle) * distance;
+
+    // prevent the snakes from being spawned too close to each other
+    for (const auto &[snakeId, snake]: this->snakes) {
+        if (snake->zone.isInclude(x, y)) {
+            // too close!
+            return this->createSnake(isBot, username, isPlayer);
+        }
+    }
 
     auto angle = randomDouble(0, std::numbers::pi * 2); // the angle to spawn the body to
     auto snake = new Snake{

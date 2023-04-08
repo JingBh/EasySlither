@@ -16,8 +16,9 @@ link_directories(${CMAKE_SOURCE_DIR}/lib)
 link_libraries(EasyXa EasyXw XInput)
 
 set(SOURCE_FILES_UNIVERSAL
-        src/Game/Config.cppm
+        src/Game/GameConfig.cppm
         src/Game/GameInterface.cppm
+        src/Game/GameType.cppm
         src/Game/Sector.cppm
         src/Game/Snake.cppm
         src/Game/World.cppm
@@ -45,8 +46,10 @@ set(SOURCE_FILES_CLIENT
         src/Menu/MenuInterface.cppm
         src/Menu/MenuItem.cppm
         src/Screen/GameScreen.cppm
+        src/Screen/GameOverScreen.cppm
         src/Screen/LoadingScreen.cppm
         src/Screen/MainScreen.cppm
+        src/Screen/RankScreen.cppm
         src/Screen/ScaleFactor.cppm
         src/Screen/Screen.cppm
         src/Screen/ScreenInterface.cppm

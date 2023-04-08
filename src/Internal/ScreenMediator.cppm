@@ -6,6 +6,7 @@ import <memory>;
 import <mutex>;
 import <string_view>;
 
+import Game.GameType;
 import Internal.GameServer;
 import Internal.GameStore;
 import Network.ConnectionEnd;
@@ -29,8 +30,12 @@ protected:
         : screen{screen}, store{GameStore::getInstance()} {}
 
 public:
-    void notify(const ScreenName &screenName) final {
-        switch (screenName) {
+    void applyChanges() final {
+        if (!this->pendingChange.has_value()) {
+            return;
+        }
+
+        switch (this->pendingChange.value()) {
             using
             enum ScreenName;
 
@@ -43,17 +48,13 @@ public:
                 break;
 
             case SINGLE_PLAYER_START:
+                this->store->lastGameType = GameType::SINGLE_PLAYER;
                 GameServer::start();
                 this->useScreen(std::make_unique<GameScreen>(screen));
                 break;
 
             case SINGLE_PLAYER_RANK:
-                // TODO: Show rank screen
-                break;
-
-            case SINGLE_PLAYER_END:
-                GameServer::stop();
-                // TODO: Show end screen
+                this->useScreen(std::make_unique<RankScreen>(screen));
                 break;
 
             case MULTI_PLAYER_MAIN:
@@ -61,14 +62,15 @@ public:
                 break;
 
             case MULTI_PLAYER_START:
+                this->store->lastGameType = GameType::MULTI_PLAYER;
                 this->useScreen(std::make_unique<LoadingScreen>(screen, "正在连接到服务器..."));
                 // TODO: connect to server
                 // this->useScreen(std::make_unique<GameScreen>(screen));
                 break;
 
-            case MULTI_PLAYER_END:
+            case GAME_OVER:
                 GameServer::stop();
-                // TODO: Show end screen
+                this->useScreen(std::make_unique<GameOverScreen>(screen));
                 break;
 
             case USERNAME_INPUT:
@@ -82,6 +84,8 @@ public:
             case EXIT:
                 std::exit(0);
         }
+
+        IMediator<ScreenName>::applyChanges();
     }
 
     void useScreen(std::unique_ptr <LocationAwareDrawable> newScreen) {

@@ -62,8 +62,8 @@ void Menu::addItem(MenuItem &item) {
     items.push_back(item);
 }
 
-void Menu::emplaceItem(IMediator <ScreenName> *mediator, const ScreenName event, const std::string text) {
-    items.emplace_back(mediator, event, text);
+void Menu::emplaceItem(const ScreenName event, const std::string text) {
+    items.emplace_back(event, text);
 }
 
 void Menu::onKeyPress(const KeyType key) {
@@ -94,12 +94,8 @@ void Menu::onKeyPress(const KeyType key) {
 }
 
 void Menu::onMouseMove(const windows::Point &point) {
-    if (this->renderRect == nullptr) {
-        return;
-    }
-
     for (std::size_t i = 0; i < items.size(); i++) {
-        windows::Rect itemRenderRect{*this->renderRect};
+        windows::Rect itemRenderRect{this->renderRect};
 
         itemRenderRect.top += static_cast<int>((itemHeight + itemGap) * i);
         itemRenderRect.bottom = itemRenderRect.top + static_cast<int>(itemHeight);

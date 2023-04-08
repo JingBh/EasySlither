@@ -1,5 +1,6 @@
 export module Internal.GameServer;
 
+import <atomic>;
 import <cstdint>;
 import <cstdio>;
 import <list>;
@@ -9,7 +10,7 @@ import <string>;
 import <thread>;
 
 import Game;
-import Game.Config;
+import Game.GameConfig;
 import Internal.GameStore;
 import Network.Connection;
 import Utils.Frames;
@@ -20,6 +21,7 @@ private:
     GameStore *store;
 
     static inline std::unique_ptr <std::thread> thread_{nullptr};
+    static inline std::atomic_bool stop_{false};
 
 public:
     GameServer()
@@ -38,13 +40,15 @@ public:
         auto snakes = world->snakes;
         for (auto &[snakeId, snake]: snakes) {
             if (snake->isDying) {
-                if (snake->deadTicks < -100) {
-                    snake->deadTicks = 25;
-                } else {
-                    snake->deadTicks--;
-                }
+                snake->deadTicks--;
 
                 if (snake->deadTicks == 0) {
+                    if (snake->isPlayer) {
+                        std::lock_guard <std::mutex> rankLock(this->store->rankMutex);
+                        this->store->lastGameScore = snake->getScore();
+                        this->store->updateRank(snake->username, this->store->lastGameScore);
+                    }
+
                     snake->turnIntoFood();
                 } else if (snake->deadTicks < 0) {
                     if (snake->isBot || snake->deadTicks < -100) {
@@ -72,7 +76,7 @@ public:
 
             // detect collision with border
             if (!world->isIntersect(thisHead)) {
-                thisSnake->isDying = true;
+                thisSnake->setDying();
                 continue;
             }
 
@@ -86,21 +90,21 @@ public:
 
                 // case 1. head to head (tip)
                 if (thisHead.isIntersect(otherSnake->getHeadTipBoundBox())) {
-                    thisSnake->isDying = true;
-                    otherSnake->isDying = true;
+                    thisSnake->setDying();
+                    otherSnake->setDying();
                     continue;
                 }
 
                 // case 2. head to head (not tip)
                 if (thisHead.isIntersect(otherSnake->head.getBoundBox(otherSnake))) {
-                    thisSnake->isDying = true;
+                    thisSnake->setDying();
                     continue;
                 }
 
                 // case 3. head to body
                 for (auto &bodyPart: otherSnake->bodyParts) {
                     if (thisHead.isIntersect(bodyPart.getBoundBox(otherSnake))) {
-                        thisSnake->isDying = true;
+                        thisSnake->setDying();
                         continue;
                     }
                 }
@@ -124,6 +128,10 @@ public:
 
     void loop() {
         while (true) {
+            if (stop_) {
+                return;
+            }
+
             sleepFor(125, "server"); // tick time 8ms (125tps)
 
             this->tick();
@@ -148,8 +156,11 @@ public:
     }
 
     static void stop() {
-        if (thread_ != nullptr) {
+        if (isRunning()) {
+            stop_ = true;
+            thread_->join();
             thread_.reset();
+            stop_ = false;
         }
     }
 

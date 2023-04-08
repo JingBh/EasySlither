@@ -22,6 +22,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     screenMediator->notify(ScreenName::MAIN);
 
     while (true) {
+        // apply screen change
+        screenMediator->applyChanges();
+
         // process events
         subjectInputDirection->update();
         subjectMouseMove->update(screen.getHandle());

@@ -16,12 +16,10 @@ export class Drawable {
     enum RenderAnchor;
 
 protected:
-    windows::Rect *renderRect = nullptr;
+    windows::Rect renderRect;
 
 public:
-    virtual ~Drawable() {
-        delete renderRect;
-    }
+    virtual ~Drawable() = default;
 
     [[nodiscard]] virtual std::unique_ptr <easyx::Image> renderImage() const = 0;
 
@@ -29,6 +27,9 @@ public:
                   easyx::Image *parentImage = nullptr,
                   const RenderAnchor anchor = TOP_LEFT) {
         const auto image = renderImage();
+        if (image == nullptr) {
+            return;
+        }
 
         switch (anchor) {
             case TOP_LEFT:
@@ -48,8 +49,7 @@ public:
         easyx::setWorkingImage(parentImage);
         easyx::putImage(point, image.get());
 
-        delete renderRect;
-        renderRect = new windows::Rect{
+        this->renderRect = windows::Rect{
             point.x,
             point.y,
             point.x + image->getwidth(),

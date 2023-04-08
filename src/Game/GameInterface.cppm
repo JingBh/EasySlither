@@ -12,7 +12,7 @@ import <numbers>;
 import <string>;
 import <vector>;
 
-import Game.Config;
+import Game.GameConfig;
 import Utils.BoundBox;
 
 export class World;
@@ -102,9 +102,11 @@ public:
 
     void checkFoodEaten();
 
+    void setDying();
+
     void turnIntoFood();
 
-    uint16_t getScore() const;
+    uint32_t getScore() const;
 
     HasRoundBoundBox getHeadTipBoundBox() const;
 };

@@ -12,3 +12,12 @@ export std::string encode(std::string text) {
             return text;
     }
 }
+
+export std::string decode(std::string text) {
+    switch (windows::getActiveCodePage()) {
+        case 936: // GBK
+            return GbkToUtf8(text.data());
+        default:
+            return text;
+    }
+}

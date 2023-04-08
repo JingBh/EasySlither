@@ -4,7 +4,6 @@ import <array>;
 import <cmath>;
 import <cstdint>;
 import <numbers>;
-import <limits>;
 import <vector>;
 
 import Game;
@@ -183,6 +182,11 @@ void Snake::checkFoodEaten() {
     }
 }
 
+void Snake::setDying() {
+    this->isDying = true;
+    this->deadTicks = 25;
+}
+
 void Snake::turnIntoFood() {
     auto *world = GameStore::getInstance()->getWorld();
     std::vector < SnakeBody * > allBodyParts{&this->head};
@@ -205,19 +209,19 @@ void Snake::turnIntoFood() {
     }
 }
 
-uint16_t Snake::getScore() const {
+uint32_t Snake::getScore() const {
     const auto length = static_cast<long double>(this->getLength()) + this->fullness;
 
     // fitted function:
     // y = 1.9160842554E-10x6 - 1.4564505459E-07x5 + 4.3828621608E-05x4 - 5.9629462725E-03x3 + 4.2820519417E-01x2 + 5.6554831974E+00x
-    return static_cast<uint16_t>(std::fmin(std::fmax(std::floor(
+    return static_cast<uint32_t>(std::fmax(std::floor(
         1.9160842554e-10 * std::pow(length, 6) -
         1.4564505459e-07 * std::pow(length, 5) +
         4.3828621608e-05 * std::pow(length, 4) -
         5.9629462725e-03 * std::pow(length, 3) +
         4.2820519417e-01 * std::pow(length, 2) +
         5.6554831974e+00 * length
-    ), 0), std::numeric_limits<uint16_t>::max()));
+    ), 0));
 }
 
 HasRoundBoundBox Snake::getHeadTipBoundBox() const {

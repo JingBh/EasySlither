@@ -1,28 +1,27 @@
 export module Utils.Mediator;
 
+import <optional>;
+
 export template<typename T>
 class IMediator {
 protected:
-    IMediator() = default;
-
-    virtual ~IMediator() = default;
+    std::optional <T> pendingChange;
 
 public:
     IMediator(IMediator<T> &other) = delete;
 
     virtual void operator=(const IMediator<T> &) = delete;
 
-    virtual void notify(const T &event) = 0;
-};
+    virtual void notify(const T &event) {
+        this->pendingChange = event;
+    }
 
-export template<typename T>
-class Mediatable {
+    virtual void applyChanges() {
+        this->pendingChange.reset();
+    }
+
 protected:
-    virtual ~Mediatable() = default;
+    IMediator() = default;
 
-    IMediator<T> *_mediator;
-
-public:
-    explicit Mediatable(IMediator<T> *mediator = nullptr)
-        : _mediator(mediator) {}
+    virtual ~IMediator() = default;
 };

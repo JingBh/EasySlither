@@ -21,7 +21,7 @@ public:
 
         const char *realStr = username.data();
         if (hasInput && realStr[0]) {
-            this->store->setUsername(realStr);
+            this->store->setUsername(decode(realStr));
         }
     }
 };

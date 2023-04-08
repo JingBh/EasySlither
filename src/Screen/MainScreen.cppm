@@ -4,7 +4,6 @@ import <memory>;
 
 import Menu;
 import Internal.GameStore;
-import Internal.ScreenMediator;
 import Screen;
 import Screen.ScreenName;
 import ThirdParty;
@@ -14,31 +13,25 @@ import Utils.TextEncode;
 
 MainScreen::MainScreen(Screen &screen)
     : screen{screen} {
-    auto mediator = ScreenMediator::getInstance(&screen);
-
     this->menu = std::make_unique<Menu>();
-    this->menu->emplaceItem(mediator, ScreenName::USERNAME_INPUT, "修改昵称");
-    this->menu->emplaceItem(mediator, ScreenName::SINGLE_PLAYER_MAIN, "单人游戏");
-    this->menu->emplaceItem(mediator, ScreenName::MULTI_PLAYER_MAIN, "多人游戏");
-    this->menu->emplaceItem(mediator, ScreenName::EXIT, "退出");
+    this->menu->emplaceItem(ScreenName::USERNAME_INPUT, "修改昵称");
+    this->menu->emplaceItem(ScreenName::SINGLE_PLAYER_MAIN, "单人游戏");
+    this->menu->emplaceItem(ScreenName::MULTI_PLAYER_MAIN, "多人游戏");
+    this->menu->emplaceItem(ScreenName::EXIT, "退出");
 }
 
 MainScreenSinglePlayer::MainScreenSinglePlayer(Screen &screen)
     : MainScreen(screen, std::make_unique<Menu>()) {
-    auto mediator = ScreenMediator::getInstance(&screen);
-
-    this->menu->emplaceItem(mediator, ScreenName::MAIN, "返回主菜单");
-    this->menu->emplaceItem(mediator, ScreenName::SINGLE_PLAYER_START, "开始游戏");
-    this->menu->emplaceItem(mediator, ScreenName::SINGLE_PLAYER_RANK, "排行榜");
+    this->menu->emplaceItem(ScreenName::MAIN, "返回主菜单");
+    this->menu->emplaceItem(ScreenName::SINGLE_PLAYER_START, "开始游戏");
+    this->menu->emplaceItem(ScreenName::SINGLE_PLAYER_RANK, "排行榜");
 }
 
 MainScreenMultiPlayer::MainScreenMultiPlayer(Screen &screen)
     : MainScreen(screen, std::make_unique<Menu>()) {
-    auto mediator = ScreenMediator::getInstance(&screen);
-
-    this->menu->emplaceItem(mediator, ScreenName::MAIN, "返回主菜单");
-    this->menu->emplaceItem(mediator, ScreenName::MULTI_PLAYER_START, "开始游戏");
-    this->menu->emplaceItem(mediator, ScreenName::SERVER_INPUT, "选择服务器");
+    this->menu->emplaceItem(ScreenName::MAIN, "返回主菜单");
+    this->menu->emplaceItem(ScreenName::MULTI_PLAYER_START, "开始游戏");
+    this->menu->emplaceItem(ScreenName::SERVER_INPUT, "选择服务器");
 }
 
 [[nodiscard]] std::unique_ptr <easyx::Image> MainScreen::renderImage() const {
