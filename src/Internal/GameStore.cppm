@@ -93,7 +93,13 @@ public:
         if (it == this->rank.end()) {
             this->rank.emplace_back(thisUsername, score);
         } else {
-            std::get<1>(*it) = score;
+            auto *itScore = &std::get<1>(*it);
+
+            if (score <= *itScore) {
+                return;
+            }
+
+            *itScore = score;
         }
 
         std::sort(this->rank.begin(), this->rank.end(), [](const auto &a, const auto &b) {

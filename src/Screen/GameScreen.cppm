@@ -78,7 +78,7 @@ import Utils.TextEncode;
                 static_cast<int>(sector.boundBoxY2 - viewport.boundBoxY1));
 
             // start draw foods
-            easyx::setFillColor(EMBER_700);
+            easyx::setFillColor(AMBER_700);
             for (auto &[foodId, food]: sector.foods) {
                 // check if food is in sight
                 if (viewport.isInclude(food->x, food->y)) {

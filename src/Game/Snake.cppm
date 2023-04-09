@@ -234,7 +234,7 @@ uint32_t Snake::getScore() const {
         snakeScoreBase.push_back(thisData);
     }
 
-    const auto fullnessScore = this->fullness / snakePartScore[bodyPartCount];
+    const auto fullnessScore = (this->fullness / this->fullnessThreshold) / snakePartScore[bodyPartCount];
     const auto score = std::floor(15 * (snakeScoreBase[bodyPartCount] + fullnessScore - 1) - 5);
     return static_cast<uint32_t>(score);
 }
