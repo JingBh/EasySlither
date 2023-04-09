@@ -66,7 +66,7 @@ Snake *World::createSnake(bool isBot, const std::string &username, bool isPlayer
 
     // prevent the snakes from being spawned too close to each other
     for (const auto &[snakeId, snake]: this->snakes) {
-        if (snake->zone.isInclude(x, y)) {
+        if (snake->head.getBoundBox(snake).isInclude(x, y)) {
             // too close!
             return this->createSnake(isBot, username, isPlayer);
         }

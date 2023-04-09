@@ -66,6 +66,7 @@ public:
 private:
     double fullness = 0;
     double scale; // sc
+    double fullnessThreshold = 1;
     double speedAngularCoefficientThickness; // scang
     double speedAngularCoefficientVelocity; // spang
 

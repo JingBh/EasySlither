@@ -18,6 +18,9 @@ constexpr std::array<double, 7> snakePartsDistance = {
 constexpr auto snakeHeadDistanceSum = 42 + 42 + 42 + 37.7 + 37.7 + 33 + 28.5;
 constexpr double tailStepDistance = 24;
 
+static std::vector<double> snakePartScore;
+static std::vector<double> snakeScoreBase{0};
+
 [[nodiscard]] size_t Snake::getLength() const {
     return this->bodyParts.size() + 1;
 }
@@ -27,14 +30,20 @@ constexpr double tailStepDistance = 24;
 }
 
 void Snake::grow(const double amount) {
+    const auto *world = GameStore::getInstance()->getWorld();
+
     this->fullness += amount;
 
-    while (this->fullness >= 1) {
-        this->fullness -= 1;
-        this->bodyParts.push_back(this->bodyParts.back());
-    }
+    while (this->fullness >= this->fullnessThreshold) {
+        if (this->getLength() >= world->config.maxBodyParts) {
+            break;
+        }
 
-    this->updateStatus();
+        this->fullness -= this->fullnessThreshold;
+        this->bodyParts.push_back(this->bodyParts.back());
+
+        this->updateStatus();
+    }
 }
 
 void Snake::shrink(const double amount) {
@@ -69,7 +78,7 @@ void Snake::shrink(const double amount) {
     }
 
     while (amount > this->fullness) {
-        this->fullness += 1;
+        this->fullness += this->fullnessThreshold;
 
         const size_t loseParts = std::ceil(amount);
         for (size_t i = 0; i < loseParts; i++) {
@@ -77,10 +86,11 @@ void Snake::shrink(const double amount) {
                 this->bodyParts.pop_back();
             }
         }
+
+        this->updateStatus();
     }
 
     this->fullness -= amount;
-    this->updateStatus();
 }
 
 void Snake::move(unsigned long long timeSpan) {
@@ -139,6 +149,7 @@ void Snake::move(unsigned long long timeSpan) {
 
 void Snake::updateStatus() {
     this->scale = std::fmin(6, 1 + (static_cast<double>(this->getLength() - 1)) / 106);
+    this->fullnessThreshold = std::pow(this->scale, 2);
     this->speedAngularCoefficientThickness = 0.13 + 0.87 * std::pow((7 - this->scale) / 6, 2);
     this->speedAngularCoefficientVelocity = this->isBoost ?
                                             Snake::speedLinearBoost / Snake::speedLinearBase : 1;
@@ -168,7 +179,7 @@ void Snake::checkFoodEaten() {
     if (sector == nullptr) return;
 
     auto headBoundBox = this->head.getBoundBox(this);
-    headBoundBox.boundBoxRadius *= 1.5;
+    headBoundBox.boundBoxRadius *= 1.25;
 
     // foods might change during iteration
     // make copy of the original map
@@ -210,18 +221,22 @@ void Snake::turnIntoFood() {
 }
 
 uint32_t Snake::getScore() const {
-    const auto length = static_cast<long double>(this->getLength()) + this->fullness;
+    const auto *world = GameStore::getInstance()->getWorld();
+    const auto bodyPartCount = this->bodyParts.size();
 
-    // fitted function:
-    // y = 1.9160842554E-10x6 - 1.4564505459E-07x5 + 4.3828621608E-05x4 - 5.9629462725E-03x3 + 4.2820519417E-01x2 + 5.6554831974E+00x
-    return static_cast<uint32_t>(std::fmax(std::floor(
-        1.9160842554e-10 * std::pow(length, 6) -
-        1.4564505459e-07 * std::pow(length, 5) +
-        4.3828621608e-05 * std::pow(length, 4) -
-        5.9629462725e-03 * std::pow(length, 3) +
-        4.2820519417e-01 * std::pow(length, 2) +
-        5.6554831974e+00 * length
-    ), 0));
+    for (size_t i = snakePartScore.size(); i <= bodyPartCount; i++) {
+        const double thisData = std::pow(1 - static_cast<double>(i) / world->config.maxBodyParts, 2.25);
+        snakePartScore.push_back(thisData);
+    }
+
+    for (size_t i = snakeScoreBase.size(); i <= bodyPartCount; i++) {
+        const double thisData = snakeScoreBase[i - 1] + 1 / snakePartScore[i - 1];
+        snakeScoreBase.push_back(thisData);
+    }
+
+    const auto fullnessScore = this->fullness / snakePartScore[bodyPartCount];
+    const auto score = std::floor(15 * (snakeScoreBase[bodyPartCount] + fullnessScore - 1) - 5);
+    return static_cast<uint32_t>(score);
 }
 
 HasRoundBoundBox Snake::getHeadTipBoundBox() const {
