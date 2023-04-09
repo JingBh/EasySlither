@@ -33,8 +33,7 @@ public:
                 (leftThumbY > windows::XINPUT_LEFT_THUMB_DEADZONE ||
                  leftThumbY < -windows::XINPUT_LEFT_THUMB_DEADZONE)) {
 
-                const auto leftThumbMagnitude = std::sqrt(
-                    leftThumbX * leftThumbX + leftThumbY * leftThumbY);
+                const auto leftThumbMagnitude = std::hypot(leftThumbX, leftThumbY);
 
                 const auto normalizedLX = leftThumbX / leftThumbMagnitude;
                 const auto normalizedLY = leftThumbY / leftThumbMagnitude;

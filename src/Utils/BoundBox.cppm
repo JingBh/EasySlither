@@ -2,7 +2,11 @@ export module Utils.BoundBox;
 
 import <cmath>;
 
-export class HasRoundBoundBox {
+export class HasRoundBoundBox;
+
+export class HasRectBoundBox;
+
+class HasRoundBoundBox {
 public:
     double boundBoxX, boundBoxY;
     double boundBoxRadius;
@@ -14,19 +18,21 @@ public:
     [[nodiscard]] bool isIntersect(const HasRoundBoundBox &other) const {
         const auto dx = this->boundBoxX - other.boundBoxX;
         const auto dy = this->boundBoxY - other.boundBoxY;
-        const auto distance = std::sqrt(dx * dx + dy * dy);
+        const auto distance = std::hypot(dx, dy);
         return distance <= this->boundBoxRadius + other.boundBoxRadius;
     }
+
+    [[nodiscard]] bool isIntersect(const HasRectBoundBox &other) const;
 
     [[nodiscard]] bool isInclude(const double x, const double y) const {
         const auto dx = this->boundBoxX - x;
         const auto dy = this->boundBoxY - y;
-        const auto distance = std::sqrt(dx * dx + dy * dy);
+        const auto distance = std::hypot(dx, dy);
         return distance <= this->boundBoxRadius;
     }
 };
 
-export class HasRectBoundBox {
+class HasRectBoundBox {
 public:
     double boundBoxX1, boundBoxY1, boundBoxX2, boundBoxY2;
 
@@ -40,11 +46,11 @@ public:
     }
 
     [[nodiscard]] bool isIntersect(const HasRoundBoundBox &other) const {
-        double dx = std::fmax(this->boundBoxX1 - other.boundBoxX, 0);
+        auto dx = std::fmax(this->boundBoxX1 - other.boundBoxX, 0);
         dx = std::max(dx, other.boundBoxX - this->boundBoxX2);
-        double dy = std::fmax(this->boundBoxY1 - other.boundBoxY, 0.0f);
+        auto dy = std::fmax(this->boundBoxY1 - other.boundBoxY, 0.0f);
         dy = std::max(dy, other.boundBoxY - this->boundBoxY2);
-        double distance = std::sqrt(dx * dx + dy * dy);
+        const auto distance = std::hypot(dx, dy);
 
         if (distance <= other.boundBoxRadius) {
             return true;
@@ -65,3 +71,7 @@ public:
                && this->boundBoxY1 <= y && this->boundBoxY2 >= y;
     }
 };
+
+bool HasRoundBoundBox::isIntersect(const HasRectBoundBox &other) const {
+    return other.isIntersect(*this);
+}
