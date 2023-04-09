@@ -1,6 +1,7 @@
 export module Internal.GameServer;
 
 import <atomic>;
+import <cmath>;
 import <cstdint>;
 import <cstdio>;
 import <list>;
@@ -30,15 +31,16 @@ public:
     }
 
     void tick() {
-        std::lock_guard <std::mutex> lock(this->store->worldMutex);
-
         const auto timeSpan = getTimeSpan("server");
+        const auto tickCount = getFrameCount("server");
+
+        std::lock_guard <std::mutex> lock(this->store->worldMutex);
         auto world = this->store->getWorld();
 
         // snakes might be deleted during iteration
         // make copy of the original map
-        auto snakes = world->snakes;
-        for (auto &[snakeId, snake]: snakes) {
+        auto snakesCopy = world->snakes;
+        for (auto &[snakeId, snake]: snakesCopy) {
             if (snake->isDying) {
                 snake->deadTicks--;
 
@@ -57,6 +59,11 @@ public:
                 }
 
                 continue;
+            }
+
+            static constexpr int aiTicks = 25;
+            if (snake->isBot && tickCount % aiTicks == std::abs(snake->id) % aiTicks) {
+                snake->tickAI();
             }
 
             snake->move(timeSpan);
@@ -111,7 +118,7 @@ public:
             }
         }
 
-        if (getFrameCount("server") % 100 == 0) {
+        if (tickCount % 100 == 0) {
             // every 100 ticks
             // fill foods and bot snakes
             for (auto &sector: world->sectors) {

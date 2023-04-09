@@ -107,6 +107,8 @@ public:
 
     void turnIntoFood();
 
+    void tickAI();
+
     uint32_t getScore() const;
 
     HasRoundBoundBox getHeadTipBoundBox() const;
@@ -171,6 +173,8 @@ public:
     }
 
     Sector *getSectorAt(const double x, const double y);
+
+    std::array<Sector *, 9> getSectorsAround(const double x, const double y);
 
     void addFood(Food *food);
 

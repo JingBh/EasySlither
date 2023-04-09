@@ -1,5 +1,6 @@
 export module Game.World;
 
+import <array>;
 import <cmath>;
 import <numbers>;
 import <string>;
@@ -22,6 +23,22 @@ Sector *World::getSectorAt(const double x, const double y) {
     }
 
     return nullptr;
+}
+
+std::array<Sector *, 9> World::getSectorsAround(const double x, const double y) {
+    const int8_t sectorX = std::floor(x / this->config.sectorSize);
+    const int8_t sectorY = std::floor(y / this->config.sectorSize);
+
+    std::array < Sector * , 9 > result{nullptr};
+
+    for (Sector &sector: this->sectors) {
+        if (sector.x >= sectorX - 1 && sector.x <= sectorX + 1 &&
+            sector.y >= sectorY - 1 && sector.y <= sectorY + 1) {
+            result[(sector.y - sectorY + 1) * 3 + (sector.x - sectorX + 1)] = &sector;
+        }
+    }
+
+    return result;
 }
 
 void World::addFood(Food *food) {

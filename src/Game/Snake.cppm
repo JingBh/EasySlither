@@ -1,8 +1,10 @@
 export module Game.Snake;
 
+import <algorithm>;
 import <array>;
 import <cmath>;
 import <cstdint>;
+import <iterator>;
 import <numbers>;
 import <vector>;
 
@@ -48,6 +50,7 @@ void Snake::grow(const double amount) {
 
 void Snake::shrink(const double amount) {
     auto *world = GameStore::getInstance()->getWorld();
+
     auto &last = this->bodyParts.back();
 
     if (amount < 0.1) {
@@ -174,7 +177,6 @@ void Snake::updateStatus() {
 
 void Snake::checkFoodEaten() {
     auto *world = GameStore::getInstance()->getWorld();
-    if (world == nullptr) return;
     auto *sector = world->getSectorAt(this->head.x, this->head.y);
     if (sector == nullptr) return;
 
@@ -200,6 +202,7 @@ void Snake::setDying() {
 
 void Snake::turnIntoFood() {
     auto *world = GameStore::getInstance()->getWorld();
+
     std::vector < SnakeBody * > allBodyParts{&this->head};
 
     for (auto &bodyPart: this->bodyParts) {
@@ -218,6 +221,68 @@ void Snake::turnIntoFood() {
             world->addFood(food);
         }
     }
+}
+
+void Snake::tickAI() {
+    auto *world = GameStore::getInstance()->getWorld();
+
+    // every 0.1pi rad is an angular sector (from -pi to pi, there are 20)
+    // the array stores their priority
+    // the more food, the more priority
+    // if there are other snakes, the priority is largely reduced
+    std::array<double, 20> angularSectors{0};
+
+    for (const auto *sector: world->getSectorsAround(this->head.x, this->head.y)) {
+        // check foods
+        for (const auto &[foodId, food]: sector->foods) {
+            const double foodDistance = std::pow(food->y - this->head.y, 2) + std::pow(food->x - this->head.x, 2);
+
+            const double foodAngle = std::atan2(food->y - this->head.y, food->x - this->head.x);
+            const double foodAngleDiff = std::abs(normalizeAngle(foodAngle - this->angle));
+            const auto foodAngularSector = static_cast<size_t>(foodAngle / std::numbers::pi * 10 + 9.5);
+
+            // calculate priority based on food distance, food size and food direction
+            const double foodPriority = 1 / foodDistance * food->size / 100.0 * (1 - foodAngleDiff / std::numbers::pi);
+            angularSectors[static_cast<size_t>(foodAngularSector)] += foodPriority;
+        }
+    }
+
+    // check other snakes
+    static constexpr double snakeRisk = 5; // the higher, the more priority is reduced
+    for (const auto &[snakeId, snake]: world->snakes) {
+        if (snakeId == this->id || snake->isDying ||
+            !this->zone.isIntersect(snake->zone))
+            continue;
+
+        double snakeDistance = std::pow(snake->head.y - this->head.y, 2) + std::pow(snake->head.x - this->head.x, 2);
+        double snakeAngle = std::atan2(snake->head.y - this->head.y, snake->head.x - this->head.x);
+        auto snakeAngularSector = static_cast<size_t>(snakeAngle / std::numbers::pi * 10 + 9.5);
+
+        // modify priority based on distance to other snakes
+        for (int i = -4; i < 5; i++) {
+            const auto normalizedSector = (snakeAngularSector + i + 20) % 20;
+            angularSectors[normalizedSector] -= snakeRisk / snakeDistance / (std::abs(i) + 1);
+        }
+
+        // repeat for all body parts of the snake
+        for (const auto &bodyPart: snake->bodyParts) {
+            snakeDistance = std::pow(bodyPart.y - this->head.y, 2) + std::pow(bodyPart.x - this->head.x, 2);
+            snakeAngle = std::atan2(bodyPart.y - this->head.y, bodyPart.x - this->head.x);
+            snakeAngularSector = static_cast<size_t>(snakeAngle / std::numbers::pi * 10 + 9.5);
+
+            for (int i = -4; i < 5; i++) {
+                const auto normalizedSector = (snakeAngularSector + i + 20) % 20;
+                angularSectors[normalizedSector] -= snakeRisk / snakeDistance / (std::abs(i) + 1);
+            }
+        }
+    }
+
+    // turn to the best angle
+    const auto iAngularSector = std::distance(
+        angularSectors.begin(),
+        std::max_element(angularSectors.begin(), angularSectors.end())
+    );
+    this->wAngle = (static_cast<double>(iAngularSector) - 9.5) * std::numbers::pi / 10;
 }
 
 uint32_t Snake::getScore() const {
