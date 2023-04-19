@@ -202,6 +202,22 @@ import Utils.TextEncode;
     }
 
     /**
+     * Draw preys
+     */
+    easyx::setFillColor(AMBER_700);
+    for (auto &[preyId, prey]: world->preys) {
+        \
+        // check if prey is in sight
+        if (viewport.isInclude(prey->x, prey->y)) {
+            easyx::drawCircle(
+                static_cast<int>(prey->x - viewport.boundBoxX1),
+                static_cast<int>(prey->y - viewport.boundBoxY1),
+                static_cast<int>(5 * std::log10(prey->size)),
+                false);
+        }
+    }
+
+    /**
      * Draw world border
      */
     {
@@ -221,7 +237,7 @@ import Utils.TextEncode;
             std::array < double, 2 > {viewport.boundBoxX1 + 1, viewport.boundBoxY2 - 1}
         };
         for (auto &corner: viewportCorners) {
-            if (!world->isInclude(corner[0], corner[1])) {
+            if (!world->isInclude(std::floor(corner[0]), std::floor(corner[1]))) {
                 easyx::floodFill(
                     std::floor(corner[0] - viewport.boundBoxX1),
                     std::floor(corner[1] - viewport.boundBoxY1),

@@ -16,12 +16,14 @@ void Sector::removeFood(Food *food) {
 }
 
 Food *Sector::generateFood() {
+    const double foodX = (this->x + 0.5) * this->config.sectorSize
+                         + randomDouble(this->config.sectorSize / 2.0);
+    const double foodY = (this->y + 0.5) * this->config.sectorSize
+                         + randomDouble(this->config.sectorSize / 2.0);
+
     return new Food{
-        this->config,
-        static_cast<int16_t>(this->x * this->config.sectorSize
-                             + randomInt(this->config.sectorSize)),
-        static_cast<int16_t>(this->y * this->config.sectorSize
-                             + randomInt(this->config.sectorSize)),
+        static_cast<int>(foodY) * config.worldRadius * 3 + static_cast<int>(foodX),
+        foodX, foodY,
         static_cast<uint8_t>(randomInt(2, 10))
     };
 }
@@ -44,8 +46,7 @@ void Sector::fillFood(const bool gradually) {
 }
 
 uint16_t Sector::distanceTo(const Sector &other) const {
-    return static_cast<uint16_t>(std::pow(std::abs(this->x - other.x), 2)
-                                 + std::pow(std::abs(this->y - other.y), 2));
+    return std::floor(std::hypot(this->x - other.x, this->y - other.y));
 }
 
 uint16_t Sector::distanceToCenter() const {

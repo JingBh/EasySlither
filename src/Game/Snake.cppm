@@ -53,14 +53,17 @@ void Snake::shrink(const double amount) {
 
     auto &last = this->bodyParts.back();
 
+    const auto foodX = last.x + randomDouble(this->bodyPartRadius);
+    const auto foodY = last.y + randomDouble(this->bodyPartRadius);
+    const auto foodId = static_cast<int>(foodY) * world->config.worldRadius * 3
+                        + static_cast<int>(foodX);
+
     if (amount < 0.1) {
         const auto minFoodSize = static_cast<int>(std::max(0.01, amount / 5) * 100);
         const auto maxFoodSize = static_cast<int>(std::max(0.02, amount / 2) * 100);
 
         auto *food = new Food{
-            world->config,
-            static_cast<int16_t>(last.x + randomDouble(this->bodyPartRadius)),
-            static_cast<int16_t>(last.y + randomDouble(this->bodyPartRadius)),
+            foodId, foodX, foodY,
             static_cast<uint8_t>(randomInt(minFoodSize, maxFoodSize))
         };
 
@@ -70,9 +73,7 @@ void Snake::shrink(const double amount) {
 
         for (size_t i = 0; i < generateFoods; i++) {
             auto *food = new Food{
-                world->config,
-                static_cast<int16_t>(last.x + randomDouble(this->bodyPartRadius)),
-                static_cast<int16_t>(last.y + randomDouble(this->bodyPartRadius)),
+                foodId, foodX, foodY,
                 static_cast<uint8_t>(randomInt(2, 5))
             };
 
@@ -193,6 +194,17 @@ void Snake::checkFoodEaten() {
             sector->removeFood(food);
         }
     }
+
+    // preys might change during iteration
+    // make copy of the original map
+    auto preys = world->preys;
+    for (auto &[preyId, prey]: preys) {
+        if (prey == nullptr) return;
+        if (headBoundBox.isInclude(prey->x, prey->y)) {
+            this->grow(prey->size / 100.0);
+            world->removePrey(prey);
+        }
+    }
 }
 
 void Snake::setDying() {
@@ -211,10 +223,12 @@ void Snake::turnIntoFood() {
 
     for (auto &bodyPart: allBodyParts) {
         for (size_t i = 0; i < 10; i++) {
+            const auto foodX = bodyPart->x + randomDouble(this->bodyPartRadius);
+            const auto foodY = bodyPart->y + randomDouble(this->bodyPartRadius);
+
             auto *food = new Food{
-                GameStore::getInstance()->getWorld()->config,
-                static_cast<int16_t>(bodyPart->x + randomDouble(this->bodyPartRadius)),
-                static_cast<int16_t>(bodyPart->y + randomDouble(this->bodyPartRadius)),
+                static_cast<int>(foodY) * world->config.worldRadius * 3 + static_cast<int>(foodX),
+                foodX, foodY,
                 static_cast<uint8_t>(randomInt(5, 15))
             };
 
@@ -235,7 +249,7 @@ void Snake::tickAI() {
     for (const auto *sector: world->getSectorsAround(this->head.x, this->head.y)) {
         // check foods
         for (const auto &[foodId, food]: sector->foods) {
-            const double foodDistance = std::pow(food->y - this->head.y, 2) + std::pow(food->x - this->head.x, 2);
+            const double foodDistance = std::hypot(food->y - this->head.y, food->x - this->head.x);
 
             const double foodAngle = std::atan2(food->y - this->head.y, food->x - this->head.x);
             const double foodAngleDiff = std::abs(normalizeAngle(foodAngle - this->angle));
@@ -254,7 +268,7 @@ void Snake::tickAI() {
             !this->zone.isIntersect(snake->zone))
             continue;
 
-        double snakeDistance = std::pow(snake->head.y - this->head.y, 2) + std::pow(snake->head.x - this->head.x, 2);
+        double snakeDistance = std::hypot(snake->head.y - this->head.y, snake->head.x - this->head.x);
         double snakeAngle = std::atan2(snake->head.y - this->head.y, snake->head.x - this->head.x);
         auto snakeAngularSector = static_cast<size_t>(snakeAngle / std::numbers::pi * 10 + 9.5);
 
@@ -266,7 +280,7 @@ void Snake::tickAI() {
 
         // repeat for all body parts of the snake
         for (const auto &bodyPart: snake->bodyParts) {
-            snakeDistance = std::pow(bodyPart.y - this->head.y, 2) + std::pow(bodyPart.x - this->head.x, 2);
+            snakeDistance = std::hypot(bodyPart.y - this->head.y, bodyPart.x - this->head.x);
             snakeAngle = std::atan2(bodyPart.y - this->head.y, bodyPart.x - this->head.x);
             snakeAngularSector = static_cast<size_t>(snakeAngle / std::numbers::pi * 10 + 9.5);
 

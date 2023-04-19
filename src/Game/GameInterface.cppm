@@ -25,15 +25,34 @@ export class Snake;
 
 export class SnakeBody;
 
+export class Prey;
+
 class Food {
 public:
     const int32_t id;
-    const int16_t x, y;
+    double x, y;
     const uint8_t size;
 
-    Food(const GameConfig config,
-         const int16_t x, const int16_t y, const uint8_t size)
-        : id{y * config.worldRadius * 3 + x}, x{x}, y{y}, size{size} {}
+    Food(const int32_t id, const double x, const double y, const uint8_t size)
+        : id{id}, x{x}, y{y}, size{size} {}
+};
+
+class Prey : public Food {
+public:
+    double angle, wAngle;
+
+private:
+    static constexpr double speedAngularBase = 0.028; // mamu2
+    static constexpr double speedLinearBase = 1.88;
+    static inline int32_t nextPreyId = 0; // auto-increment id
+
+public:
+    Prey(const double x, const double y, const uint8_t size, const double angle)
+        : Food(nextPreyId++, x, y, size), angle{angle}, wAngle{angle} {}
+
+    void turn();
+
+    void move(unsigned long long timeSpan);
 };
 
 class SnakeBody {
@@ -85,9 +104,7 @@ public:
         : id{id},
           head{x, y}, angle{angle}, wAngle{angle},
           isBot{isBot}, isPlayer{isPlayer},
-          username{username} {
-        wAngle = this->angle;
-    }
+          username{username} {}
 
     [[nodiscard]] size_t getLength() const;
 
@@ -138,7 +155,7 @@ public:
           targetFoodDensity{
               // this is calculated based on the sector's distance to the center
               // the closer to the center, the more food it will have
-              static_cast<uint16_t>((1 - this->distanceToCenter() / std::pow(config.sectorCountEdge, 2)) *
+              static_cast<uint16_t>((1 - this->distanceToCenter() / config.sectorCountEdge) *
                                     config.foodDensity)
           },
           config{config} {
@@ -164,6 +181,7 @@ public:
     const GameConfig config; // the config used to create this world
     std::vector <Sector> sectors;
     std::map<int32_t, Snake *> snakes;
+    std::map<int32_t, Prey *> preys;
     Snake *player = nullptr;
 
 public:
@@ -184,9 +202,17 @@ public:
 
     void removeSnake(Snake *snake);
 
+    void addPrey(Prey *prey);
+
+    void removePrey(Prey *prey);
+
     Snake *createSnake(bool isBot, const std::string &username, bool isPlayer = false);
 
     void fillSnake();
+
+    Prey *createPrey();
+
+    void fillPreys();
 
 private:
     void initSectors();

@@ -34,6 +34,9 @@ public:
         const auto timeSpan = getTimeSpan("server");
         const auto tickCount = getFrameCount("server");
 
+        static constexpr int snakeAiTicks = 25;
+        static constexpr int preyTurnTicks = 100;
+
         std::lock_guard <std::mutex> lock(this->store->worldMutex);
         auto world = this->store->getWorld();
 
@@ -61,8 +64,7 @@ public:
                 continue;
             }
 
-            static constexpr int aiTicks = 25;
-            if (snake->isBot && tickCount % aiTicks == std::abs(snake->id) % aiTicks) {
+            if (snake->isBot && tickCount % snakeAiTicks == std::abs(snakeId) % snakeAiTicks) {
                 snake->tickAI();
             }
 
@@ -71,9 +73,7 @@ public:
             snake->checkFoodEaten();
         }
 
-        /**
-         * collision detect
-         */
+        // collision detect
         for (auto &[thisSnakeId, thisSnake]: world->snakes) {
             if (thisSnake->isDying) {
                 continue;
@@ -118,6 +118,16 @@ public:
             }
         }
 
+        // prey move
+
+        for (auto &[preyId, prey]: world->preys) {
+            if (tickCount % preyTurnTicks == std::abs(preyId) % preyTurnTicks) {
+                prey->turn();
+            }
+
+            prey->move(timeSpan);
+        }
+
         if (tickCount % 100 == 0) {
             // every 100 ticks
             // fill foods and bot snakes
@@ -126,6 +136,8 @@ public:
             }
 
             world->fillSnake();
+
+            world->fillPreys();
         }
     }
 

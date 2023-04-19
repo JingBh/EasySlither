@@ -2,6 +2,7 @@ export module Game.World;
 
 import <array>;
 import <cmath>;
+import <limits>;
 import <numbers>;
 import <string>;
 
@@ -75,8 +76,18 @@ void World::removeSnake(Snake *snake) {
     delete snake;
 }
 
+void World::addPrey(Prey *prey) {
+    this->preys[prey->id] = prey;
+}
+
+void World::removePrey(Prey *prey) {
+    this->preys.erase(prey->id);
+
+    delete prey;
+}
+
 Snake *World::createSnake(bool isBot, const std::string &username, bool isPlayer) {
-    const auto distanceAngle = randomDouble(0, std::numbers::pi * 2);
+    const auto distanceAngle = randomDouble(std::numbers::pi);
     const auto distance = this->config.worldRadius * randomDouble(0.05, 0.5);
     auto x = std::cos(distanceAngle) * distance;
     auto y = std::sin(distanceAngle) * distance;
@@ -89,7 +100,7 @@ Snake *World::createSnake(bool isBot, const std::string &username, bool isPlayer
         }
     }
 
-    auto angle = randomDouble(0, std::numbers::pi * 2); // the angle to spawn the body to
+    auto angle = normalizeAngle(randomDouble(std::numbers::pi)); // the angle to spawn the body to
     auto snake = new Snake{
         Snake::nextSnakeId++,
         x, y, reverseAngle(angle),
@@ -118,6 +129,24 @@ void World::fillSnake() {
 
     for (size_t i = 0; i < snakeNeeded; i++) {
         this->addSnake(this->createSnake(true, "电脑玩家" + getNextName()));
+    }
+}
+
+Prey *World::createPrey() {
+    const auto distanceAngle = randomDouble(std::numbers::pi);
+    const auto distance = this->config.worldRadius * randomDouble(0.1, 1);
+
+    return new Prey{
+        std::cos(distanceAngle) * distance,
+        std::sin(distanceAngle) * distance,
+        std::numeric_limits<uint8_t>::max(),
+        normalizeAngle(randomDouble(std::numbers::pi)) // the angle to spawn the body to
+    };
+}
+
+void World::fillPreys() {
+    for (size_t i = 0, l = 50 - this->preys.size(); i < l; i++) {
+        this->addPrey(this->createPrey());
     }
 }
 

@@ -19,6 +19,7 @@ set(SOURCE_FILES_UNIVERSAL
         src/Game/GameConfig.cppm
         src/Game/GameInterface.cppm
         src/Game/GameType.cppm
+        src/Game/Prey.cppm
         src/Game/Sector.cppm
         src/Game/Snake.cppm
         src/Game/World.cppm
