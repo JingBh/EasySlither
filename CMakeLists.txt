@@ -59,6 +59,7 @@ set(SOURCE_FILES_CLIENT
         src/ThirdParty.cppm
         src/Utils/Colors.cppm
         src/Utils/Drawable.cppm
+        src/Utils/InputBox.cppm
         src/Utils/TextEncode.cppm)
 
 set(SOURCE_FILES_SERVER
