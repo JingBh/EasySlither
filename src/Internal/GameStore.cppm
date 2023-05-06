@@ -13,7 +13,6 @@ import <vector>;
 
 import Game;
 import Game.GameConfig;
-import Game.GameType;
 import Utils.Filesystem;
 
 export class GameStore {
@@ -25,11 +24,9 @@ public:
     std::mutex worldInitializationMutex;
 
     uint32_t lastGameScore = 0;
-    std::optional <GameType> lastGameType;
 
 private:
     std::string username;
-    std::string serverAddress;
 
     std::vector <std::tuple<std::string, uint16_t>> rank;
     std::unique_ptr <World> world;

@@ -6,10 +6,8 @@ import <memory>;
 import <mutex>;
 import <string_view>;
 
-import Game.GameType;
 import Internal.GameServer;
 import Internal.GameStore;
-import Network.ConnectionEnd;
 import Screen;
 import Screen.ScreenName;
 import Screen.UsernameInput;
@@ -43,29 +41,9 @@ public:
                 this->useScreen(std::make_unique<MainScreen>(screen));
                 break;
 
-            case SINGLE_PLAYER_MAIN:
-                this->useScreen(std::make_unique<MainScreenSinglePlayer>(screen));
-                break;
-
-            case SINGLE_PLAYER_START:
-                this->store->lastGameType = GameType::SINGLE_PLAYER;
+            case GAME_START:
                 GameServer::start();
                 this->useScreen(std::make_unique<GameScreen>(screen));
-                break;
-
-            case SINGLE_PLAYER_RANK:
-                this->useScreen(std::make_unique<RankScreen>(screen));
-                break;
-
-            case MULTI_PLAYER_MAIN:
-                this->useScreen(std::make_unique<MainScreenMultiPlayer>(screen));
-                break;
-
-            case MULTI_PLAYER_START:
-                this->store->lastGameType = GameType::MULTI_PLAYER;
-                this->useScreen(std::make_unique<LoadingScreen>(screen, "正在连接到服务器..."));
-                // TODO: connect to server
-                // this->useScreen(std::make_unique<GameScreen>(screen));
                 break;
 
             case GAME_OVER:
@@ -73,12 +51,12 @@ public:
                 this->useScreen(std::make_unique<GameOverScreen>(screen));
                 break;
 
-            case USERNAME_INPUT:
-                UsernameInput()();
+            case RANK:
+                this->useScreen(std::make_unique<RankScreen>(screen));
                 break;
 
-            case SERVER_INPUT:
-                // TODO: Server selection
+            case USERNAME_INPUT:
+                UsernameInput()();
                 break;
 
             case EXIT:

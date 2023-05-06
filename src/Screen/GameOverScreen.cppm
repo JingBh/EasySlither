@@ -3,7 +3,6 @@ export module Screen.GameOverScreen;
 import <cstdint>;
 import <memory>;
 
-import Game.GameType;
 import Internal.GameStore;
 import Menu;
 import Screen;
@@ -17,18 +16,8 @@ GameOverScreen::GameOverScreen(Screen &screen)
     : screen{screen}, store{GameStore::getInstance()} {
     this->menu = std::make_unique<Menu>();
 
-    switch (this->store->lastGameType.value()) {
-        using
-        enum GameType;
-        case SINGLE_PLAYER:
-            this->menu->emplaceItem(ScreenName::SINGLE_PLAYER_START, "再来一次");
-            this->menu->emplaceItem(ScreenName::SINGLE_PLAYER_RANK, "排行榜");
-            break;
-        case MULTI_PLAYER:
-            this->menu->emplaceItem(ScreenName::MULTI_PLAYER_START, "再来一次");
-            break;
-    }
-
+    this->menu->emplaceItem(ScreenName::GAME_START, "再来一次");
+    this->menu->emplaceItem(ScreenName::RANK, "排行榜");
     this->menu->emplaceItem(ScreenName::MAIN, "返回主菜单");
 }
 

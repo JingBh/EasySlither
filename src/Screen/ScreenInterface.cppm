@@ -61,16 +61,6 @@ protected:
         : screen{screen}, menu{std::move(menu)} {}
 };
 
-export class MainScreenSinglePlayer : public MainScreen {
-public:
-    explicit MainScreenSinglePlayer(Screen &screen);
-};
-
-export class MainScreenMultiPlayer : public MainScreen {
-public:
-    explicit MainScreenMultiPlayer(Screen &screen);
-};
-
 export class LoadingScreen : public LocationAwareDrawable {
 protected:
     const Screen &screen;

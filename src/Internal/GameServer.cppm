@@ -13,12 +13,10 @@ import <thread>;
 import Game;
 import Game.GameConfig;
 import Internal.GameStore;
-import Network.Connection;
 import Utils.Frames;
 
 export class GameServer {
 private:
-    std::list <IConnection<ConnectionEnd::SERVER>> connections;
     GameStore *store;
 
     static inline std::unique_ptr <std::thread> thread_{nullptr};
@@ -141,10 +139,6 @@ public:
         }
     }
 
-    void notify() {
-        // Not implemented yet
-    }
-
     void loop() {
         while (true) {
             if (stop_) {
@@ -154,7 +148,6 @@ public:
             sleepFor(125, "server"); // tick time 8ms (125tps)
 
             this->tick();
-            this->notify();
         }
     }
 

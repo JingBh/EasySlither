@@ -15,23 +15,9 @@ MainScreen::MainScreen(Screen &screen)
     : screen{screen} {
     this->menu = std::make_unique<Menu>();
     this->menu->emplaceItem(ScreenName::USERNAME_INPUT, "修改昵称");
-    this->menu->emplaceItem(ScreenName::SINGLE_PLAYER_MAIN, "单人游戏");
-    this->menu->emplaceItem(ScreenName::MULTI_PLAYER_MAIN, "多人游戏");
+    this->menu->emplaceItem(ScreenName::GAME_START, "开始游戏");
+    this->menu->emplaceItem(ScreenName::RANK, "排行榜");
     this->menu->emplaceItem(ScreenName::EXIT, "退出");
-}
-
-MainScreenSinglePlayer::MainScreenSinglePlayer(Screen &screen)
-    : MainScreen(screen, std::make_unique<Menu>()) {
-    this->menu->emplaceItem(ScreenName::MAIN, "返回主菜单");
-    this->menu->emplaceItem(ScreenName::SINGLE_PLAYER_START, "开始游戏");
-    this->menu->emplaceItem(ScreenName::SINGLE_PLAYER_RANK, "排行榜");
-}
-
-MainScreenMultiPlayer::MainScreenMultiPlayer(Screen &screen)
-    : MainScreen(screen, std::make_unique<Menu>()) {
-    this->menu->emplaceItem(ScreenName::MAIN, "返回主菜单");
-    this->menu->emplaceItem(ScreenName::MULTI_PLAYER_START, "开始游戏");
-    this->menu->emplaceItem(ScreenName::SERVER_INPUT, "选择服务器");
 }
 
 [[nodiscard]] std::unique_ptr <easyx::Image> MainScreen::renderImage() const {

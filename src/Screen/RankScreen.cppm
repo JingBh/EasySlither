@@ -19,7 +19,7 @@ import Utils.TextEncode;
 RankScreen::RankScreen(Screen &screen)
     : screen{screen}, store{GameStore::getInstance()} {
     this->menu = std::make_unique<Menu>();
-    this->menu->emplaceItem(ScreenName::SINGLE_PLAYER_MAIN, "返回");
+    this->menu->emplaceItem(ScreenName::MAIN, "返回");
 }
 
 [[nodiscard]] std::unique_ptr <easyx::Image> RankScreen::renderImage() const {
