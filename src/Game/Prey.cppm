@@ -13,7 +13,7 @@ void Prey::turn() {
 
     // the more the prey is away from the center, the more it tends to go back
     const auto distanceToCenter = std::hypot(this->x, this->y);
-    const auto tendency = distanceToCenter / world->config.worldRadius;
+    const auto tendency = std::min(1.0, distanceToCenter / world->config.worldRadius / 0.9);
 
     const auto angleToCenter = std::atan2(-this->y, -this->x);
     this->wAngle = rotateAngle(angleToCenter, randomDouble((1 - tendency) * std::numbers::pi));
