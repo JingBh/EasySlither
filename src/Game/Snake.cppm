@@ -266,7 +266,7 @@ void Snake::tickAI() {
     }
 
     // check other snakes
-    static constexpr double snakeRisk = 5; // the higher, the more priority is reduced
+    static constexpr double snakeRisk = 1; // the higher, the more priority is reduced
     for (const auto &[snakeId, snake]: world->snakes) {
         if (snakeId == this->id || snake->isDying ||
             !this->zone.isIntersect(snake->zone))
