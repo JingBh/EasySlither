@@ -1,4 +1,4 @@
-export module Utils.RankScreen;
+export module Screen.RankScreen;
 
 import <algorithm>;
 import <cstdint>;

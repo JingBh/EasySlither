@@ -1,4 +1,4 @@
-export module Utils.GameOverScreen;
+export module Screen.GameOverScreen;
 
 import <cstdint>;
 import <memory>;
