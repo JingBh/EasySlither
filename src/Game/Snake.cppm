@@ -247,6 +247,10 @@ void Snake::tickAI() {
     std::array<double, 20> angularSectors{0};
 
     for (const auto *sector: world->getSectorsAround(this->head.x, this->head.y)) {
+        if (sector == nullptr) {
+            continue;
+        }
+
         // check foods
         for (const auto &[foodId, food]: sector->foods) {
             const double foodDistance = std::hypot(food->y - this->head.y, food->x - this->head.x);
