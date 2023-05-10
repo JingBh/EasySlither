@@ -96,7 +96,7 @@ RankScreen::RankScreen(Screen &screen)
                     break;
                 }
             } else {
-                std::tie(username, score) = rank->at(i);
+                std::tie(username, score) = rank->at(i - 1);
                 isSelf = username == this->store->getUsername();
             }
 
